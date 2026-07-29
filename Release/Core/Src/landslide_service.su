@@ -1,0 +1,7 @@
+../Core/Src/landslide_service.c:130:12:Landslide_Service_Init	32	static
+../Core/Src/landslide_service.c:248:6:Landslide_Service_ConnectionComplete	0	static
+../Core/Src/landslide_service.c:258:6:Landslide_Service_Disconnection	0	static
+../Core/Src/landslide_service.c:268:6:Landslide_Service_AttributeModified	8	static
+../Core/Src/landslide_service.c:334:12:Landslide_Update_Motion_Events	16	static
+../Core/Src/landslide_service.c:344:12:Landslide_Update_Wakeup_Source	16	static
+../Core/Src/landslide_service.c:355:12:Landslide_Update_Raw_IMU_Sample	40	static

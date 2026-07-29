@@ -1,0 +1,3 @@
+../Projects/Common/BLE/Modules/RTDebug/RTDebug.c:36:6:SYSTEM_DEBUG_SIGNAL_SET	1
+../Projects/Common/BLE/Modules/RTDebug/RTDebug.c:43:6:SYSTEM_DEBUG_SIGNAL_RESET	1
+../Projects/Common/BLE/Modules/RTDebug/RTDebug.c:50:6:SYSTEM_DEBUG_SIGNAL_TOGGLE	1

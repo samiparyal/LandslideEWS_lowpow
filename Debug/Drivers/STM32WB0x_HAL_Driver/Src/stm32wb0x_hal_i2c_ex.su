@@ -1,0 +1,4 @@
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_i2c_ex.c:91:19:HAL_I2CEx_ConfigAnalogFilter	16	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_i2c_ex.c:135:19:HAL_I2CEx_ConfigDigitalFilter	24	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_i2c_ex.c:203:6:HAL_I2CEx_EnableFastModePlus	16	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_i2c_ex.c:218:6:HAL_I2CEx_DisableFastModePlus	16	static

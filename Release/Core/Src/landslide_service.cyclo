@@ -1,0 +1,7 @@
+../Core/Src/landslide_service.c:130:12:Landslide_Service_Init	2
+../Core/Src/landslide_service.c:248:6:Landslide_Service_ConnectionComplete	1
+../Core/Src/landslide_service.c:258:6:Landslide_Service_Disconnection	1
+../Core/Src/landslide_service.c:268:6:Landslide_Service_AttributeModified	9
+../Core/Src/landslide_service.c:334:12:Landslide_Update_Motion_Events	3
+../Core/Src/landslide_service.c:344:12:Landslide_Update_Wakeup_Source	3
+../Core/Src/landslide_service.c:355:12:Landslide_Update_Raw_IMU_Sample	3

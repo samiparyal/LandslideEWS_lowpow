@@ -1,0 +1,5 @@
+../Projects/Common/BLE/Modules/Profiles/Src/gatt_profile.c:146:12:aci_gatt_srv_profile_init	40	static
+../Projects/Common/BLE/Modules/Profiles/Src/gatt_profile.c:193:12:Gatt_profile_set_access_permission	32	static
+../Projects/Common/BLE/Modules/Profiles/Src/gatt_profile.c:217:12:Gatt_profile_set_security_permission	32	static
+../Projects/Common/BLE/Modules/Profiles/Src/gatt_profile.c:249:10:Gatt_profile_get_service_handle	8	static
+../Projects/Common/BLE/Modules/Profiles/Src/gatt_profile.c:254:21:Gatt_profile_get_service_definition_p	8	static

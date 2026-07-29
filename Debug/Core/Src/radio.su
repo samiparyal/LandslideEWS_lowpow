@@ -1,0 +1,8 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:642:22:LL_APB2_GRP1_EnableClock	24	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:659:26:LL_APB2_GRP1_IsEnabledClock	16	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:672:22:LL_APB2_GRP1_DisableClock	16	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:685:22:LL_APB2_GRP1_ForceReset	16	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:698:22:LL_APB2_GRP1_ReleaseReset	16	static
+../Core/Src/radio.c:28:6:MX_RADIO_Init	16	static
+../Core/Src/radio.c:58:6:HAL_RADIO_MspInit	48	static
+../Core/Src/radio.c:96:6:HAL_RADIO_MspDeInit	16	static

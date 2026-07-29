@@ -1,0 +1,4 @@
+../Middlewares/ST/STM32_BLE/evt_handler/src/ble_evt.c:63:6:BLEEVT_Init	1
+../Middlewares/ST/STM32_BLE/evt_handler/src/ble_evt.c:75:5:BLEEVT_RegisterGattEvtHandler	2
+../Middlewares/ST/STM32_BLE/evt_handler/src/ble_evt.c:91:5:BLEEVT_RegisterHandler	2
+../Middlewares/ST/STM32_BLE/evt_handler/src/ble_evt.c:107:6:BLE_STACK_Event	9

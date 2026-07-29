@@ -1,0 +1,5 @@
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:307:24:FM_CheckFlashManagerState	16	static,ignoring_inline_asm
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:384:13:FM_ProcessRequest	0	static
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:110:17:FM_Write	24	static
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:150:17:FM_Erase	16	static
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:186:6:FM_BackgroundProcess	24	static,ignoring_inline_asm

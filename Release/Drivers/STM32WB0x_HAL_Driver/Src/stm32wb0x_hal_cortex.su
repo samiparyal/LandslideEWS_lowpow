@@ -1,0 +1,14 @@
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:125:6:HAL_NVIC_SetPriority	8	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:139:6:HAL_NVIC_EnableIRQ	0	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:155:6:HAL_NVIC_DisableIRQ	0	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:168:6:HAL_NVIC_SystemReset	0	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:181:10:HAL_SYSTICK_Config	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:212:10:HAL_NVIC_GetPriority	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:225:6:HAL_NVIC_SetPendingIRQ	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:243:10:HAL_NVIC_GetPendingIRQ	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:259:6:HAL_NVIC_ClearPendingIRQ	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:282:13:HAL_SYSTICK_Callback	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:273:6:HAL_SYSTICK_IRQHandler	8	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:294:6:HAL_MPU_Disable	0	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:314:6:HAL_MPU_Enable	0	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_cortex.c:330:6:HAL_MPU_ConfigRegion	8	static

@@ -1,0 +1,9 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:279:22:LL_AHB1_GRP1_DisableClock	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:566:22:LL_APB1_GRP1_DisableClock	1
+../System/Interfaces/usart_if.c:120:25:UART_Init	1
+../System/Interfaces/usart_if.c:152:25:UART_DeInit	6
+../System/Interfaces/usart_if.c:214:25:UART_StartRx	2
+../System/Interfaces/usart_if.c:243:25:UART_TransmitDMA	3
+../System/Interfaces/usart_if.c:292:13:USART1_DMA_MspDeInit	1
+../System/Interfaces/usart_if.c:315:6:HAL_UART_TxCpltCallback	2
+../System/Interfaces/usart_if.c:331:6:HAL_UART_RxCpltCallback	1

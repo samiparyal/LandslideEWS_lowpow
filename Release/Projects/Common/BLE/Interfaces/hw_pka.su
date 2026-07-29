@@ -1,0 +1,10 @@
+../Projects/Common/BLE/Interfaces/hw_pka.c:329:12:rev_memcmp.constprop	12	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:309:6:HAL_PKA_ErrorCallback	8	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:356:13:HW_PKA_SetData	80	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:423:13:HW_PKA_GetData	0	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:448:6:HW_PKA_Init	8	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:457:9:HW_PKA_PowerSaveLevelCheck	8	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:475:21:HW_PKA_StartP256DHkeyGeneration	24	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:1067:13:HW_PKA_VerifyProcess	0	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:1089:6:HW_PKA_IRQHandler	16	static
+../Projects/Common/BLE/Interfaces/hw_pka.c:302:6:HAL_PKA_OperationCpltCallback	8	static

@@ -1,0 +1,6 @@
+../STM32_BLE/Target/blenvm.c:103:9:NVMDB_TimeCheck	3
+../STM32_BLE/Target/blenvm.c:127:6:BLENVM_Init	1
+../STM32_BLE/Target/blenvm.c:136:26:BLEPLAT_NvmAdd	4
+../STM32_BLE/Target/blenvm.c:172:26:BLEPLAT_NvmGet	6
+../STM32_BLE/Target/blenvm.c:219:5:BLEPLAT_NvmCompare	3
+../STM32_BLE/Target/blenvm.c:239:6:BLEPLAT_NvmDiscard	4

@@ -1,0 +1,14 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_pka.h:367:22:LL_PKA_Start	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_pka.h:401:22:LL_PKA_EnableIT_ADDRERR	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_pka.h:412:22:LL_PKA_EnableIT_RAMERR	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_pka.h:423:22:LL_PKA_EnableIT_PROCEND	1
+../Projects/Common/BLE/Interfaces/hw_pka.c:302:6:HAL_PKA_OperationCpltCallback	1
+../Projects/Common/BLE/Interfaces/hw_pka.c:309:6:HAL_PKA_ErrorCallback	1
+../Projects/Common/BLE/Interfaces/hw_pka.c:329:12:rev_memcmp	3
+../Projects/Common/BLE/Interfaces/hw_pka.c:356:13:HW_PKA_SetData	8
+../Projects/Common/BLE/Interfaces/hw_pka.c:423:13:HW_PKA_GetData	5
+../Projects/Common/BLE/Interfaces/hw_pka.c:448:6:HW_PKA_Init	1
+../Projects/Common/BLE/Interfaces/hw_pka.c:457:9:HW_PKA_PowerSaveLevelCheck	2
+../Projects/Common/BLE/Interfaces/hw_pka.c:475:21:HW_PKA_StartP256DHkeyGeneration	5
+../Projects/Common/BLE/Interfaces/hw_pka.c:1067:13:HW_PKA_VerifyProcess	3
+../Projects/Common/BLE/Interfaces/hw_pka.c:1089:6:HW_PKA_IRQHandler	3

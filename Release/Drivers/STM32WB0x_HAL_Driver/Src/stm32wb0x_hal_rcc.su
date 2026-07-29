@@ -1,0 +1,12 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rcc.h:508:26:LL_RCC_HSE_IsReady	0	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rcc.h:652:22:LL_RCC_HSI_Enable	0	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rcc.h:674:26:LL_RCC_HSI_IsReady	0	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rcc.h:750:26:LL_RCC_DIRECT_HSE_IsEnabled	0	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:229:22:LL_AHB1_GRP1_EnableClock	8	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc.c:182:19:HAL_RCC_DeInit	16	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc.c:264:19:HAL_RCC_OscConfig	24	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc.c:540:19:HAL_RCC_ClockConfig	40	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc.c:719:6:HAL_RCC_MCOConfig	48	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc.c:779:10:HAL_RCC_GetSysClockFreq	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc.c:791:6:HAL_RCC_GetOscConfig	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc.c:852:6:HAL_RCC_GetClockConfig	16	static

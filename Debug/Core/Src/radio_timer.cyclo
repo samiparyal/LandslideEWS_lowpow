@@ -1,0 +1,6 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_radio_timer.h:325:26:LL_RADIO_TIMER_GetAbsoluteTime	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:642:22:LL_APB2_GRP1_EnableClock	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:659:26:LL_APB2_GRP1_IsEnabledClock	2
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:685:22:LL_APB2_GRP1_ForceReset	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:698:22:LL_APB2_GRP1_ReleaseReset	1
+../Core/Src/radio_timer.c:28:6:MX_RADIO_TIMER_Init	3

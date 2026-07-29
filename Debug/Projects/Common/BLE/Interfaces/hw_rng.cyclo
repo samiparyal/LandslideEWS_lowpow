@@ -1,0 +1,10 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:229:22:LL_AHB1_GRP1_EnableClock	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rng.h:1994:22:LL_RNG_Enable	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rng.h:2005:22:LL_RNG_Disable	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rng.h:2057:26:LL_RNG_IsActiveFlag_RNGRDY	2
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rng.h:2079:26:LL_RNG_IsActiveFlag_FAULT	2
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rng.h:2109:26:LL_RNG_ReadRandData16	1
+../Projects/Common/BLE/Interfaces/hw_rng.c:62:21:HW_RNG_Init	3
+../Projects/Common/BLE/Interfaces/hw_rng.c:113:21:HW_RNG_Deinit	1
+../Projects/Common/BLE/Interfaces/hw_rng.c:125:21:HW_RNG_GetRandom16	2
+../Projects/Common/BLE/Interfaces/hw_rng.c:152:21:HW_RNG_GetRandom32	3

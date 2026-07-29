@@ -1,0 +1,4 @@
+../Core/Src/app_entry.c:85:10:MX_APPE_Init	8	static
+../Core/Src/app_entry.c:154:6:MX_APPE_Process	8	static
+../Core/Src/app_entry.c:164:6:UTIL_SEQ_PreIdle	0	static
+../Core/Src/app_entry.c:174:6:UTIL_SEQ_Idle	80	static,ignoring_inline_asm

@@ -1,0 +1,5 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_utils.h:204:28:LL_GetRAMSize	2
+../Projects/Common/BLE/Modules/miscutil.c:46:6:GetPartInfo	3
+../Projects/Common/BLE/Modules/miscutil.c:90:6:GetCrashInfo	1
+../Projects/Common/BLE/Modules/miscutil.c:96:6:CrashHandler	4
+../Projects/Common/BLE/Modules/miscutil.c:117:9:GetDemodCI	1

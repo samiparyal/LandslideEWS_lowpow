@@ -1,0 +1,12 @@
+../Core/Src/imu.c:20:9:imu_init	3
+../Core/Src/imu.c:75:9:imu_enable_wakeup_int1	4
+../Core/Src/imu.c:98:9:imu_read_wakeup_src	5
+../Core/Src/imu.c:117:6:imu_gyro_on	1
+../Core/Src/imu.c:124:6:imu_gyro_off	1
+../Core/Src/imu.c:131:9:imu_poll	7
+../Core/Src/imu.c:145:9:imu_compute_tilt_deg	4
+../Core/Src/imu.c:160:9:imu_get_acceleration_magnitude_g	1
+../Core/Src/imu.c:169:9:imu_get_gyro_dps_magnitude	2
+../Core/Src/imu.c:181:9:imu_set_rate_ms	10
+../Core/Src/imu.c:214:6:imu_get_last_sample	1
+../Core/Src/imu.c:221:13:imu_apply_training_mode	1

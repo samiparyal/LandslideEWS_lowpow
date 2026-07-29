@@ -1,0 +1,5 @@
+../Projects/Common/BLE/Modules/Flash/flash_driver.c:74:6:FD_SetStatus	32	static,ignoring_inline_asm
+../Projects/Common/BLE/Modules/Flash/flash_driver.c:99:16:FD_TimeCheck	24	static
+../Projects/Common/BLE/Modules/Flash/flash_driver.c:120:21:FD_WriteData32	32	static,ignoring_inline_asm
+../Projects/Common/BLE/Modules/Flash/flash_driver.c:149:21:FD_WriteData128	32	static,ignoring_inline_asm
+../Projects/Common/BLE/Modules/Flash/flash_driver.c:177:21:FD_EraseSectors	56	static,ignoring_inline_asm

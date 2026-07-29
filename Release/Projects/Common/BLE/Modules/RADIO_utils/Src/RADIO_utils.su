@@ -1,0 +1,16 @@
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:106:9:RADIO_DBmToPALevel	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:126:9:RADIO_DBmToPALevelGe	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:146:8:RADIO_PALevelToDBm	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:159:9:RADIO_GetMaxPALevel	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:164:9:RADIO_GetDefaultPALevel	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:169:6:RADIO_ReadTransmitPower	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:183:6:RADIO_SetHighPower	24	static,ignoring_inline_asm
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:233:6:HAL_RADIO_TxRxSeqCallback	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:257:6:RADIO_ToneStart	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:309:6:RADIO_ToneStop	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:326:8:RADIO_UpdateAvgRSSI	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:345:6:RADIO_AntIdxRemap	16	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:393:12:aci_hal_set_antenna_switch_parameters	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:402:12:aci_hal_set_tx_power_level_preprocess	0	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:439:12:aci_hal_tone_start	64	static
+../Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.c:498:12:aci_hal_tone_stop	8	static

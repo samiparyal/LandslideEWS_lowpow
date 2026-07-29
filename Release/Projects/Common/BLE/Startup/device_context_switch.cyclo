@@ -1,0 +1,4 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:256:26:LL_AHB1_GRP1_IsEnabledClock	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:537:26:LL_APB1_GRP1_IsEnabledClock	1
+../Projects/Common/BLE/Startup/device_context_switch.c:537:6:prepareDeviceLowPower	22
+../Projects/Common/BLE/Startup/device_context_switch.c:570:6:restoreDeviceLowPower	23

@@ -1,0 +1,7 @@
+../Middlewares/ST/STM32_BLE/queued_writes/src/eatt_pwrq.c:263:19:EATT_pwrq_get_entry	32	static
+../Middlewares/ST/STM32_BLE/queued_writes/src/eatt_pwrq.c:110:6:EATT_pwrq_reset	0	static
+../Middlewares/ST/STM32_BLE/queued_writes/src/eatt_pwrq.c:115:12:EATT_pwrq_init	0	static
+../Middlewares/ST/STM32_BLE/queued_writes/src/eatt_pwrq.c:129:6:EATT_pwrq_flush	48	static
+../Middlewares/ST/STM32_BLE/queued_writes/src/eatt_pwrq.c:149:12:EATT_pwrq_read	24	static
+../Middlewares/ST/STM32_BLE/queued_writes/src/eatt_pwrq.c:169:12:EATT_pwrq_pop	48	static
+../Middlewares/ST/STM32_BLE/queued_writes/src/eatt_pwrq.c:206:12:EATT_pwrq_push	32	static

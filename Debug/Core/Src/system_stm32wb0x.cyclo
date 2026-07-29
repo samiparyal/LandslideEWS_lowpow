@@ -1,0 +1,5 @@
+../Drivers/CMSIS/Include/core_cm0plus.h:850:22:__NVIC_SetPriority	2
+../Drivers/CMSIS/Include/core_cm0plus.h:987:34:__NVIC_SystemReset	1
+../Core/Src/system_stm32wb0x.c:199:6:SystemInit	6
+../Core/Src/system_stm32wb0x.c:323:6:SystemCoreClockUpdate	2
+../Core/Src/system_stm32wb0x.c:355:13:CPUcontextRestore	1

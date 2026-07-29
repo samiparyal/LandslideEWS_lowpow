@@ -1,0 +1,5 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:229:22:LL_AHB1_GRP1_EnableClock	1
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:279:22:LL_AHB1_GRP1_DisableClock	1
+../Core/Src/pka.c:30:6:MX_PKA_Init	2
+../Core/Src/pka.c:51:6:HAL_PKA_MspInit	2
+../Core/Src/pka.c:71:6:HAL_PKA_MspDeInit	2

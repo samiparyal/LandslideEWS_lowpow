@@ -1,0 +1,9 @@
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:327:12:Gap_profile_set_char_value	32	static
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:300:12:Gap_profile_set_dev_name	16	static
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:167:12:aci_gap_profile_init	32	static
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:309:12:Gap_profile_set_appearance	16	static
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:318:12:Gap_profile_set_pref_conn_par	16	static
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:384:12:Gap_profile_set_access_permission	24	static
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:417:12:Gap_profile_set_security_permission	16	static
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:491:10:Gap_profile_get_service_handle	8	static
+../Projects/Common/BLE/Modules/Profiles/Src/gap_profile.c:496:21:Gap_profile_get_service_definition_p	0	static

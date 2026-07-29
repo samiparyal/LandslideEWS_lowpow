@@ -1,0 +1,8 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rcc.h:750:26:LL_RCC_DIRECT_HSE_IsEnabled	0	static
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:229:22:LL_AHB1_GRP1_EnableClock	8	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc_ex.c:107:19:HAL_RCCEx_PeriphCLKConfig	8	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc_ex.c:170:6:HAL_RCCEx_GetPeriphCLKConfig	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc_ex.c:213:10:HAL_RCCEx_GetPeriphCLKFreq	8	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc_ex.c:382:6:HAL_RCCEx_EnableLSCO	40	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc_ex.c:452:6:HAL_RCCEx_EnableLSCOinDEEPSTOP	32	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_rcc_ex.c:484:6:HAL_RCCEx_DisableLSCO	0	static

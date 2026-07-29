@@ -1,0 +1,4 @@
+../Projects/Common/BLE/Interfaces/hw_rng.c:62:21:HW_RNG_Init	8	static
+../Projects/Common/BLE/Interfaces/hw_rng.c:113:21:HW_RNG_Deinit	0	static
+../Projects/Common/BLE/Interfaces/hw_rng.c:125:21:HW_RNG_GetRandom16	0	static
+../Projects/Common/BLE/Interfaces/hw_rng.c:152:21:HW_RNG_GetRandom32	0	static

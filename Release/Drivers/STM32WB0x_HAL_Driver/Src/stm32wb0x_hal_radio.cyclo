@@ -1,0 +1,8 @@
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_radio.c:423:8:HAL_RADIO_ReadRSSI	4
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_radio.c:1723:13:HAL_RADIO_MspInit	1
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_radio.c:223:6:HAL_RADIO_Init	4
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_radio.c:1739:13:HAL_RADIO_MspDeInit	1
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_radio.c:1749:13:HAL_RADIO_TxRxCallback	1
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_radio.c:1754:13:HAL_RADIO_TxRxSeqCallback	1
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_radio.c:1758:6:HAL_RADIO_TXRX_IRQHandler	1
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_radio.c:1785:6:HAL_RADIO_TXRX_SEQ_IRQHandler	1

@@ -1,0 +1,5 @@
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:110:17:FM_Write	7
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:150:17:FM_Erase	5
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:186:6:FM_BackgroundProcess	23
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:307:24:FM_CheckFlashManagerState	9
+../Projects/Common/BLE/Modules/Flash/flash_manager.c:384:13:FM_ProcessRequest	1

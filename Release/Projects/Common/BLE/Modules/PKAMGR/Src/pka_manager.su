@@ -1,0 +1,7 @@
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:89:21:PKAMGR_Init	0	static
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:96:21:PKAMGR_Deinit	0	static
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:103:21:PKAMGR_SleepCheck	0	static
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:113:21:PKAMGR_Lock	0	static,ignoring_inline_asm
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:133:21:PKAMGR_Unlock	0	static,ignoring_inline_asm
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:153:21:PKAMGR_StartP256PublicKeyGeneration	8	static
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:158:13:PKAMGR_IRQCallback	0	static

@@ -1,0 +1,4 @@
+../Projects/Common/BLE/Interfaces/hw_rng.c:62:21:HW_RNG_Init	2
+../Projects/Common/BLE/Interfaces/hw_rng.c:113:21:HW_RNG_Deinit	1
+../Projects/Common/BLE/Interfaces/hw_rng.c:125:21:HW_RNG_GetRandom16	2
+../Projects/Common/BLE/Interfaces/hw_rng.c:152:21:HW_RNG_GetRandom32	3

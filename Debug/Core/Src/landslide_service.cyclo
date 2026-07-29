@@ -1,0 +1,15 @@
+../Core/Src/landslide_service.c:81:24:getAlertStatusValueHandle	1
+../Core/Src/landslide_service.c:84:24:getAlertStatusCccdHandle	1
+../Core/Src/landslide_service.c:88:24:getTiltDataValueHandle	1
+../Core/Src/landslide_service.c:91:24:getTiltDataCccdHandle	1
+../Core/Src/landslide_service.c:95:24:getRawImuValueHandle	1
+../Core/Src/landslide_service.c:100:24:getRawImuCccdHandle	1
+../Core/Src/landslide_service.c:125:12:Landslide_Service_Init	2
+../Core/Src/landslide_service.c:247:6:Landslide_Service_ConnectionComplete	1
+../Core/Src/landslide_service.c:261:6:Landslide_Service_Disconnection	1
+../Core/Src/landslide_service.c:271:6:Landslide_Service_AttributeModified	12
+../Core/Src/landslide_service.c:334:12:Landslide_Update_Alert_Status	3
+../Core/Src/landslide_service.c:348:12:Landslide_Update_Tilt_Data	3
+../Core/Src/landslide_service.c:365:12:Landslide_Buffer_Sample	3
+../Core/Src/landslide_service.c:399:12:Landslide_Send_Next_Pending	6
+../Core/Src/landslide_service.c:425:6:Landslide_Mark_Pending_As_Historical	2

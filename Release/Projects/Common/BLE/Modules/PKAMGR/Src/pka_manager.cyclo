@@ -1,0 +1,7 @@
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:89:21:PKAMGR_Init	1
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:96:21:PKAMGR_Deinit	1
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:103:21:PKAMGR_SleepCheck	2
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:113:21:PKAMGR_Lock	2
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:133:21:PKAMGR_Unlock	2
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:153:21:PKAMGR_StartP256PublicKeyGeneration	1
+../Projects/Common/BLE/Modules/PKAMGR/Src/pka_manager.c:158:13:PKAMGR_IRQCallback	1

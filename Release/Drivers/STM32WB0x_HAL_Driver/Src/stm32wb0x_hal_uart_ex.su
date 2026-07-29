@@ -1,0 +1,13 @@
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:1067:13:UARTEx_SetNbDataToProcess	32	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:168:19:HAL_RS485Ex_Init	32	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:297:13:HAL_UARTEx_RxFifoFullCallback	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:312:13:HAL_UARTEx_TxFifoEmptyCallback	0	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:399:19:HAL_MultiProcessorEx_AddressLength_Set	16	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:534:19:HAL_UARTEx_EnableFifoMode	16	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:575:19:HAL_UARTEx_DisableFifoMode	16	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:621:19:HAL_UARTEx_SetTxFifoThreshold	24	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:670:19:HAL_UARTEx_SetRxFifoThreshold	24	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:732:19:HAL_UARTEx_ReceiveToIdle	40	static
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:871:19:HAL_UARTEx_ReceiveToIdle_IT	16	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:945:19:HAL_UARTEx_ReceiveToIdle_DMA	16	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Src/stm32wb0x_hal_uart_ex.c:1023:29:HAL_UARTEx_GetRxEventType	0	static

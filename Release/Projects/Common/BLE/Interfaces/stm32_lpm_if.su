@@ -1,0 +1,8 @@
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rcc.h:722:22:LL_RCC_DIRECT_HSE_Enable	8	static,ignoring_inline_asm
+../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_rcc.h:750:26:LL_RCC_DIRECT_HSE_IsEnabled	0	static
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:337:6:PWR_EnterSleepMode	8	static
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:345:6:PWR_ExitSleepMode	8	static
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:159:6:PWR_ExitOffMode	32	static
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:99:6:PWR_EnterOffMode	32	static
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:231:6:PWR_EnterStopMode	32	static
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:293:6:PWR_ExitStopMode	16	static
