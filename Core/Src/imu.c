@@ -9,6 +9,9 @@
 
 static stmdev_ctx_t ctx;
 static uint32_t s_current_poll_ms = 0;
+/* True DRDY period for the ODR currently programmed, in microseconds.
+   Kept in us because the quantized rates are not whole milliseconds. */
+static uint32_t s_actual_period_us = 0;
 
 static int16_t s_accel[3];
 static int16_t s_gyro[3];
@@ -55,17 +58,13 @@ int32_t imu_init(I2C_HandleTypeDef *hi2c)
 
 	 */
 
-
-//	 lsm6dsv16x_interrupt_mode_t int_mode;
-//	 memset(&int_mode, 0, sizeof(int_mode));
-
 	 lsm6dsv16x_interrupt_mode_t int_mode = {0};
 	 int_mode.enable = 1;
 	 int_mode.lir    = 0; //pulsed
 	 if (lsm6dsv16x_interrupt_enable_set(&ctx, int_mode) != 0) return -2;
 
-	 /* Route accelerometer data-ready onto INT1 (-> PB9 EXTI).
-	    Read-modify-write so any other routing is preserved. */
+	 /* Route accelerometer data-ready onto INT1 (to -> PB9 EXTI).
+	   */
 	 {
 		 lsm6dsv16x_pin_int_route_t route = {0};
 		 if (lsm6dsv16x_pin_int1_route_get(&ctx, &route) != 0) return -3;
@@ -204,24 +203,32 @@ int32_t imu_set_rate_ms(uint32_t poll_interval_ms)
 
 	uint32_t hz = 1000U / poll_interval_ms;   /* e.g. 200ms -> 5Hz*/
 
+	/* The ODR ladder is quantized. soo Record the true period alongside it: the tilt
+	   detector integrates dt which needs accurate period */
 	lsm6dsv16x_data_rate_t odr;
-	if      (hz <= 2U)   odr = LSM6DSV16X_ODR_AT_1Hz875;
-	else if (hz <= 8U)   odr = LSM6DSV16X_ODR_AT_7Hz5;
-	else if (hz <= 16U)  odr = LSM6DSV16X_ODR_AT_15Hz;
-	else if (hz <= 32U)  odr = LSM6DSV16X_ODR_AT_30Hz;
-	else if (hz <= 64U)  odr = LSM6DSV16X_ODR_AT_60Hz;
-	else if (hz <= 128U) odr = LSM6DSV16X_ODR_AT_120Hz;
-	else                 odr = LSM6DSV16X_ODR_AT_240Hz;
+	if      (hz <= 2U)   { odr = LSM6DSV16X_ODR_AT_1Hz875; s_actual_period_us = 533333U; }
+	else if (hz <= 8U)   { odr = LSM6DSV16X_ODR_AT_7Hz5;   s_actual_period_us = 133333U; }
+	else if (hz <= 16U)  { odr = LSM6DSV16X_ODR_AT_15Hz;   s_actual_period_us =  66667U; }
+	else if (hz <= 32U)  { odr = LSM6DSV16X_ODR_AT_30Hz;   s_actual_period_us =  33333U; }
+	else if (hz <= 64U)  { odr = LSM6DSV16X_ODR_AT_60Hz;   s_actual_period_us =  16667U; }
+	else if (hz <= 128U) { odr = LSM6DSV16X_ODR_AT_120Hz;  s_actual_period_us =   8333U; }
+	else                 { odr = LSM6DSV16X_ODR_AT_240Hz;  s_actual_period_us =   4167U; }
 
 	int32_t ret = lsm6dsv16x_xl_data_rate_set(&ctx, odr);
 
-	/* only re-rate gyro if it's currently on -- don't accidentally wake it in NORMAL */
+	/* only re-rate gyro if it's currently on*/
 	lsm6dsv16x_data_rate_t gy_now;
 	if (lsm6dsv16x_gy_data_rate_get(&ctx, &gy_now) == 0 && gy_now != LSM6DSV16X_ODR_OFF)
 	{
 		ret += lsm6dsv16x_gy_data_rate_set(&ctx, odr);
 	}
 	return ret;
+}
+
+
+uint32_t imu_get_actual_period_us(void)
+{
+	return s_actual_period_us;
 }
 
 

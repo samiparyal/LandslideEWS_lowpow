@@ -25,6 +25,11 @@ int32_t imu_get_gyro_dps_magnitude(float *magnitude);
 //
 int32_t imu_set_rate_ms(uint32_t poll_interval_ms);
 
+/* True DRDY period (us) for the ODR currently programmed. Differs from the
+   value passed to imu_set_rate_ms() because the ODR ladder is quantized.
+   Use this for dt in any time-integrating logic. */
+uint32_t imu_get_actual_period_us(void);
+
 //
 void imu_get_last_sample(int16_t accel[3], int16_t gyro[3]);
 

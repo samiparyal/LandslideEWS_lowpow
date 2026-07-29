@@ -73,7 +73,9 @@ typedef struct
 /* USER CODE END PD */
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-static volatile uint8_t g_rawimu_flush_req = 0;
+/* g_rawimu_flush_req removed: its only consumer was APP_BLE_RawImuTimer_Callback,
+   which is gone. Every DRDY edge now sets CFG_TASK_RAW_IMU_SEND_ID, so pending
+   samples drain on the next sample regardless of state transitions. */
 /* USER CODE END PM */
 
 
@@ -1001,7 +1003,18 @@ static void APP_BLE_TiltPoll_Task(void)
 
 	uint8_t gyro_was_off = (!TRAINING_MODE_ENABLED && tilt_detector_get_state() == TILT_STATE_NORMAL) ? 1U : 0U;
 
-	TiltState_t state = tilt_detector_update(tilt_deg, gyro_mag, acceleration_magnitude_g, armed_interval_ms);
+	/* dt must be the REAL DRDY period, not the requested interval -- the ODR
+	   ladder quantizes hard (NORMAL asks 1000 ms, gets 533 ms). Accumulate the
+	   sub-millisecond remainder so the integrated time stays exact rather than
+	   drifting a few % per sample. */
+	static uint32_t dt_remainder_us = 0;
+	uint32_t period_us = imu_get_actual_period_us();
+	if (period_us == 0U) period_us = armed_interval_ms * 1000U;   /* pre-init fallback */
+	dt_remainder_us += period_us;
+	uint32_t dt_ms = dt_remainder_us / 1000U;
+	dt_remainder_us -= dt_ms * 1000U;
+
+	TiltState_t state = tilt_detector_update(tilt_deg, gyro_mag, acceleration_magnitude_g, dt_ms);
 
 	float deviation = tilt_detector_get_deviation();
 	float velocity  = tilt_detector_get_rate_dph();
@@ -1080,10 +1093,9 @@ static void APP_BLE_TiltPoll_Task(void)
 			{
 			    Landslide_Mark_Pending_As_Historical();
 
-				if (!TRAINING_MODE_ENABLED)
-				{
-					g_rawimu_flush_req = 1;
-				}
+				/* Backlog now drains one Landslide_Send_Next_Pending() call per
+				   DRDY edge. A transition into WARNING/CRITICAL also raises the
+				   ODR, so the replay rate rises with it. */
 			}
 		}
 
