@@ -73,7 +73,7 @@ typedef struct
 /* USER CODE END PD */
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+static volatile uint8_t g_rawimu_flush_req = 0;
 /* USER CODE END PM */
 
 
@@ -123,8 +123,9 @@ static const List_Entry_t s_accepted_devices[] = {
 static VTIMER_HandleType AlertTimerHandle;
 static uint8_t g_in_alert_mode = 0;
 
-static VTIMER_HandleType TiltPollTimerHandle;
-static VTIMER_HandleType RawImuTimerHandle;
+/* TiltPollTimerHandle / RawImuTimerHandle removed - sampling is now driven by
+   the IMU data-ready EXTI (see HAL_GPIO_EXTI_Callback). AlertTimerHandle stays:
+   it is one-shot and low-rate, so it does not contend with radio scheduling. */
 
 /* USER CODE END PV */
 
@@ -141,9 +142,7 @@ static void gap_cmd_resp_wait(void);
 static void gap_cmd_resp_release(void);
 
 /* USER CODE BEGIN PFP */
-static void APP_BLE_TiltPollTimer_Callback(void *context);
 static void APP_BLE_TiltPoll_Task(void);
-static void APP_BLE_RawImuTimer_Callback(void *context);
 
 /* USER CODE END PFP */
 
@@ -446,11 +445,12 @@ void APP_BLE_Init(void)
 	  APP_DBG_MSG("ERROR: Landslide service init failed: 0x%02X\n", status);
   }
 
-  TiltPollTimerHandle.callback = APP_BLE_TiltPollTimer_Callback;
-  HAL_RADIO_TIMER_StartVirtualTimer(&TiltPollTimerHandle, POLL_INTERVAL_CALIB_MS);
-
-  RawImuTimerHandle.callback = APP_BLE_RawImuTimer_Callback;
-  HAL_RADIO_TIMER_StartVirtualTimer(&RawImuTimerHandle, POLL_INTERVAL_CALIB_MS);
+  /* Sampling is now driven by the IMU data-ready interrupt (INT1 -> PB9),
+     not by radio virtual timers. Both app virtual timers are gone: they
+     contended with the BLE radio scheduler for the single hardware wakeup
+     timer (see _update_user_timeout() / AN5469 6.1), and their arm rate
+     scaled with TRAINING_MODE_RATE_MS -- which is the variable that
+     correlated with the freeze. */
 
   for (uint8_t i = 0; i < NUM_ACCEPTED_DEVICES; i++)
   {
@@ -689,6 +689,8 @@ void BLEEVT_App_Notification(const hci_pckt *hci_pckt)
 
       if (p_hci_hardware_error_event->Hardware_Code <= 0x03)
       {
+    	 SEGGER_RTT_printf(0, "!!! HCI HARDWARE ERROR code=0x%02X -- resetting\n",
+    	                    p_hci_hardware_error_event->Hardware_Code);
         NVIC_SystemReset();
       }
     }
@@ -905,7 +907,7 @@ void APP_BLE_Procedure_Gap_Peripheral(ProcGapPeripheralId_t ProcGapPeripheralId)
                                                      0,
                                                      HCI_PHY_LE_1M,
                                                      0,
-													 HCI_PHY_LE_CODED,
+													 HCI_PHY_LE_1M,//HCI_PHY_LE_CODED,
                                                      0,
                                                      0);
       SEGGER_RTT_printf(0, "[AdvCfg] status=0x%02X\n", status);
@@ -949,39 +951,22 @@ void APP_BLE_Procedure_Gap_Peripheral(ProcGapPeripheralId_t ProcGapPeripheralId)
 
 /* USER CODE BEGIN FD*/
 
-static void APP_BLE_TiltPollTimer_Callback(void *context)
+/**
+  * @brief IMU data-ready EXTI callback (LSM6DSV16X INT1 -> PB9).
+  *        Runs in interrupt context: signal tasks only, never touch I2C here
+  *        (imu_bus_read/write are blocking HAL calls).
+  *
+  *        This replaces both former virtual timers. Sampling is now paced by
+  *        the sensor's own ODR instead of a guessed interval, so the rate is
+  *        exact rather than drifting (the old scheme re-armed *after* the task
+  *        finished, which is why 10 ms produced ~80 Hz).
+  */
+void HAL_GPIO_EXTI_Callback(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
-	(void) context;
-	UTIL_SEQ_SetTask(1U << CFG_TASK_TILT_POLL_ID, CFG_SEQ_PRIO_1);
-}
+	if ((GPIOx != IMU_INT1_GPIO_Port) || (GPIO_Pin != IMU_INT1_Pin)) return;
 
-static void APP_BLE_RawImuTimer_Callback(void *context)
-{
-    (void)context;
-    UTIL_SEQ_SetTask(1U << CFG_TASK_RAW_IMU_SEND_ID, CFG_SEQ_PRIO_1);
-
-    uint32_t next_interval;
-
-    if (TRAINING_MODE_ENABLED)
-	{
-		next_interval = TRAINING_MODE_RATE_MS;   /* raw IMU send = fast */
-	}
-
-    else if (s_imu_pending > 0U && rawImuValue.is_hist_burst != 0U)
-    {
-        next_interval = 1U;   // flush all at once
-    }
-    else
-    {
-        TiltState_t st = tilt_detector_get_state();
-        if      (st == TILT_STATE_CRITICAL) next_interval = BROADCAST_CRITICAL_MS;
-        else if (st == TILT_STATE_WARNING)  next_interval = BROADCAST_WARNING_MS;
-        else if (st == TILT_STATE_CALIBRATING) next_interval = POLL_INTERVAL_CALIB_MS;
-        else                                 next_interval = BROADCAST_NORMAL_MS;
-    }
-
-    RawImuTimerHandle.callback = APP_BLE_RawImuTimer_Callback;
-    HAL_RADIO_TIMER_StartVirtualTimer(&RawImuTimerHandle, next_interval);
+	UTIL_SEQ_SetTask(1U << CFG_TASK_TILT_POLL_ID,    CFG_SEQ_PRIO_1);
+	UTIL_SEQ_SetTask(1U << CFG_TASK_RAW_IMU_SEND_ID, CFG_SEQ_PRIO_1);
 }
 
 static void APP_BLE_TiltPoll_Task(void)
@@ -992,9 +977,8 @@ static void APP_BLE_TiltPoll_Task(void)
 
 	if (imu_poll() != 0)
 	{
-		/* no fresh DRDY hit this cycle -- skip entirely */
-		TiltPollTimerHandle.callback = APP_BLE_TiltPollTimer_Callback;
-		HAL_RADIO_TIMER_StartVirtualTimer(&TiltPollTimerHandle, armed_interval_ms);
+		/* No fresh sample. Nothing to re-arm: the next DRDY edge re-triggers
+		   this task by itself. */
 		return;
 	}
 
@@ -1096,9 +1080,10 @@ static void APP_BLE_TiltPoll_Task(void)
 			{
 			    Landslide_Mark_Pending_As_Historical();
 
-				HAL_RADIO_TIMER_StopVirtualTimer(&RawImuTimerHandle);
-				RawImuTimerHandle.callback = APP_BLE_RawImuTimer_Callback;
-				HAL_RADIO_TIMER_StartVirtualTimer(&RawImuTimerHandle, 1U);
+				if (!TRAINING_MODE_ENABLED)
+				{
+					g_rawimu_flush_req = 1;
+				}
 			}
 		}
 
@@ -1118,20 +1103,25 @@ static void APP_BLE_TiltPoll_Task(void)
 		}
 	}
 
+	/* Sampling cadence is now the sensor ODR, not a timer. Instead of arming a
+	   virtual timer we re-rate the IMU: imu_set_rate_ms() picks the ODR, and
+	   the resulting DRDY edge rate becomes the poll rate. dt_ms for the
+	   detector tracks whatever we last asked for. */
 	uint32_t next_interval;
 	if (TRAINING_MODE_ENABLED)
 	{
-		next_interval = TRAINING_MODE_RATE_MS;   /* poll timer itself must also stay fast, regardless of state */
+		next_interval = TRAINING_MODE_RATE_MS;
 	}
 	else if (state == TILT_STATE_CALIBRATING) next_interval = POLL_INTERVAL_CALIB_MS;
 	else if (state == TILT_STATE_CRITICAL)    next_interval = POLL_INTERVAL_CRITICAL_MS;
 	else if (state == TILT_STATE_WARNING)     next_interval = POLL_INTERVAL_WARNING_MS;
 	else                                      next_interval = POLL_INTERVAL_NORMAL_MS;
 
-	armed_interval_ms = next_interval;
-
-	TiltPollTimerHandle.callback = APP_BLE_TiltPollTimer_Callback;
-	HAL_RADIO_TIMER_StartVirtualTimer(&TiltPollTimerHandle, next_interval);
+	if (next_interval != armed_interval_ms)
+	{
+		armed_interval_ms = next_interval;
+		(void)imu_set_rate_ms(next_interval);   /* no-ops if unchanged */
+	}
 }
 
 void APP_BLE_AlarmAdvUpdate(uint8_t alarm, uint8_t src)

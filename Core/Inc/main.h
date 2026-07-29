@@ -65,7 +65,10 @@ void Error_Handler(void);
 #define LED_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+/* IMU data-ready interrupt (LSM6DSV16X INT1 -> PB9, GPXTI9 in the .ioc) */
+#define IMU_INT1_Pin        GPIO_PIN_9
+#define IMU_INT1_GPIO_Port  GPIOB
+#define IMU_INT1_EXTI_IRQn  GPIOB_IRQn
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

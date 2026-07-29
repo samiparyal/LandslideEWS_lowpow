@@ -106,17 +106,17 @@ static inline uint16_t getRawImuCccdHandle(void)
 
 // CCCD declarations
 BLE_GATT_SRV_CCCD_DECLARE(alertStatusCccd,
-                          1, // num_of_links (1 connection)
+						  CFG_BLE_NUM_RADIO_TASKS, // num_of_links (1 connection)
                           BLE_GATT_SRV_CCCD_PERM_DEFAULT,
                           BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG);
 
 BLE_GATT_SRV_CCCD_DECLARE(tiltDataCccd,
-                          1,
+						  CFG_BLE_NUM_RADIO_TASKS,
                           BLE_GATT_SRV_CCCD_PERM_DEFAULT,
                           BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG);
 
 BLE_GATT_SRV_CCCD_DECLARE(rawImuSampleCccd,
-                          1,
+						  CFG_BLE_NUM_RADIO_TASKS,
 						  BLE_GATT_SRV_CCCD_PERM_DEFAULT,
 						  BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG);
 

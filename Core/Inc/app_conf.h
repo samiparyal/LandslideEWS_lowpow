@@ -123,7 +123,7 @@
  * Maximum number of attributes that can be stored in the GATT database in addition to the attributes number already defined for the GATT and GAP services
  * (BLE_STACK_NUM_GATT_MANDATORY_ATTRIBUTES value on STM32_BLE middleware, ble_stack.h header file).
  */
-#define CFG_BLE_NUM_GATT_ATTRIBUTES                     (7)
+#define CFG_BLE_NUM_GATT_ATTRIBUTES                     (16)
 
 /**
  * Maximum number of concurrent Client's Procedures. This value must be less
@@ -140,7 +140,7 @@
  * Maximum duration of the connection event in system time units (625/256 us =~
  * 2.44 us) when the device is in Peripheral role [0-0xFFFFFFFF].
  */
-#define CFG_BLE_CONN_EVENT_LENGTH_MAX                   (0x00000FA0)
+#define CFG_BLE_CONN_EVENT_LENGTH_MAX                   0x00001B00//(0x00000FA0) --- 6912 STU = 16.9 ms
 
 /**
  * Sleep clock accuracy (ppm).
@@ -356,9 +356,9 @@
  *
  ******************************************************************************/
 
-#define CFG_FULL_LOW_POWER       (1)
+#define CFG_FULL_LOW_POWER       (0)
 
-#define CFG_LPM_SUPPORTED        (1)
+#define CFG_LPM_SUPPORTED        (0)
 
 #define CFG_LPM_EMULATED         (0)
 

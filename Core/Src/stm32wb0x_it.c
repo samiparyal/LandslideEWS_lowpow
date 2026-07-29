@@ -76,6 +76,7 @@ void NMI_Handler(void)
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
+	  SEGGER_RTT_printf(0, "!!! NMI_Handler fired\n");
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
    while (1)
   {
@@ -89,7 +90,8 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-
+	  SEGGER_RTT_printf(0, "!!! HardFault: ICSR=0x%08X (active exception=%lu)\n",
+	                     SCB->ICSR, (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk));
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
@@ -175,7 +177,18 @@ void PKA_IRQHandler(void)
 
 /**
   * @brief This function handles GPIOB interrupt.
+  *        NOTE: this handler was missing while the .ioc had NVIC.GPIOB_IRQn
+  *        enabled -- any edge on PB9 landed in the weak Default_Handler
+  *        (infinite loop), which looks exactly like a silent CPU freeze.
   */
+void GPIOB_IRQHandler(void)
+{
+  /* USER CODE BEGIN GPIOB_IRQn 0 */
+  /* USER CODE END GPIOB_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(IMU_INT1_GPIO_Port, IMU_INT1_Pin);   /* clears the pending flag */
+  /* USER CODE BEGIN GPIOB_IRQn 1 */
+  /* USER CODE END GPIOB_IRQn 1 */
+}
 
 /**
   * @brief This function handles RADIO_TIMER_CPU_WKUP global interrupt.

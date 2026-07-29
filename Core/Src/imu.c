@@ -64,6 +64,14 @@ int32_t imu_init(I2C_HandleTypeDef *hi2c)
 	 int_mode.lir    = 0; //pulsed
 	 if (lsm6dsv16x_interrupt_enable_set(&ctx, int_mode) != 0) return -2;
 
+	 /* Route accelerometer data-ready onto INT1 (-> PB9 EXTI).
+	    Read-modify-write so any other routing is preserved. */
+	 {
+		 lsm6dsv16x_pin_int_route_t route = {0};
+		 if (lsm6dsv16x_pin_int1_route_get(&ctx, &route) != 0) return -3;
+		 route.drdy_xl = 1;
+		 if (lsm6dsv16x_pin_int1_route_set(&ctx, &route) != 0) return -3;
+	 }
 
 	 imu_apply_training_mode(); // only takes effect if training flag set
 
@@ -116,14 +124,20 @@ int32_t imu_read_wakeup_src(uint8_t *src)
 
 void imu_gyro_on(void)
 {
+#if (TRAINING_MODE_ENABLED && !TRAINING_MODE_GYRO_ON)
+	/* Training with gyro disabled: ignore every request to power it up,
+	   including the one in tilt_detector_reset(). */
+	(void)lsm6dsv16x_gy_data_rate_set(&ctx, LSM6DSV16X_ODR_OFF);
+	return;
+#else
 	(void)lsm6dsv16x_gy_data_rate_set(&ctx, LSM6DSV16X_ODR_AT_7Hz5);
 	(void)lsm6dsv16x_gy_full_scale_set(&ctx, LSM6DSV16X_1000dps);
 	(void)lsm6dsv16x_gy_mode_set(&ctx, LSM6DSV16X_GY_LOW_POWER_MD);
+#endif
 }
 
 void imu_gyro_off(void)
 {
-	if (TRAINING_MODE_ENABLED) return;  /* keep gyro running for the whole session */
 	(void)lsm6dsv16x_gy_data_rate_set(&ctx, LSM6DSV16X_ODR_OFF);
 }
 
@@ -222,7 +236,11 @@ static void imu_apply_training_mode(void)
 {
 	if (TRAINING_MODE_ENABLED)
 	{
+#if TRAINING_MODE_GYRO_ON
 		(void)imu_gyro_on();
+#else
+		(void)imu_gyro_off();
+#endif
 		(void)imu_set_rate_ms(TRAINING_MODE_RATE_MS);
 	}
 }

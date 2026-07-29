@@ -1,5 +1,4 @@
 ../Core/Src/app_entry.c:84:10:MX_APPE_Init	16	static
-../Core/Src/app_entry.c:134:24:App_PowerSaveLevel_Check	16	static
 ../Core/Src/app_entry.c:153:6:MX_APPE_Process	8	static
 ../Core/Src/app_entry.c:163:6:UTIL_SEQ_PreIdle	8	static
-../Core/Src/app_entry.c:173:6:UTIL_SEQ_Idle	96	static,ignoring_inline_asm
+../Core/Src/app_entry.c:173:6:UTIL_SEQ_Idle	8	static

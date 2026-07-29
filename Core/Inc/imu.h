@@ -7,6 +7,9 @@
 #define TRAINING_MODE_RATE_MS  10U //100hz
 #define TRAINING_MODE_ENABLED  1   /* set to 1 during debugging to collect training data */
 
+/* 1 = keep gyro running during training, 0 = accel only  */
+#define TRAINING_MODE_GYRO_ON  1
+
 int32_t imu_init(I2C_HandleTypeDef *hi2c);
 int32_t imu_enable_wakeup_int1(uint8_t threshold, uint8_t duration);
 int32_t imu_read_wakeup_src(uint8_t *src);
