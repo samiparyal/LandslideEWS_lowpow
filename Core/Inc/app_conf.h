@@ -356,9 +356,12 @@
  *
  ******************************************************************************/
 
+/* Keep at 0 during bring-up: 1 additionally powers down debugger access, which
+   makes RTT unreadable and the target un-haltable. CFG_LPM_SUPPORTED below is
+   what actually enables DEEPSTOP. */
 #define CFG_FULL_LOW_POWER       (0)
 
-#define CFG_LPM_SUPPORTED        (0)
+#define CFG_LPM_SUPPORTED        (1)
 
 #define CFG_LPM_EMULATED         (0)
 

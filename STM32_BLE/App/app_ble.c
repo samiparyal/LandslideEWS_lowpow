@@ -73,9 +73,6 @@ typedef struct
 /* USER CODE END PD */
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-/* g_rawimu_flush_req removed: its only consumer was APP_BLE_RawImuTimer_Callback,
-   which is gone. Every DRDY edge now sets CFG_TASK_RAW_IMU_SEND_ID, so pending
-   samples drain on the next sample regardless of state transitions. */
 /* USER CODE END PM */
 
 
@@ -963,12 +960,32 @@ void APP_BLE_Procedure_Gap_Peripheral(ProcGapPeripheralId_t ProcGapPeripheralId)
   *        exact rather than drifting (the old scheme re-armed *after* the task
   *        finished, which is why 10 ms produced ~80 Hz).
   */
+static inline void APP_BLE_ImuSampleReady(void)
+{
+	UTIL_SEQ_SetTask(1U << CFG_TASK_TILT_POLL_ID,    CFG_SEQ_PRIO_1);
+	UTIL_SEQ_SetTask(1U << CFG_TASK_RAW_IMU_SEND_ID, CFG_SEQ_PRIO_1);
+}
+
 void HAL_GPIO_EXTI_Callback(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
 	if ((GPIOx != IMU_INT1_GPIO_Port) || (GPIO_Pin != IMU_INT1_Pin)) return;
 
-	UTIL_SEQ_SetTask(1U << CFG_TASK_TILT_POLL_ID,    CFG_SEQ_PRIO_1);
-	UTIL_SEQ_SetTask(1U << CFG_TASK_RAW_IMU_SEND_ID, CFG_SEQ_PRIO_1);
+	APP_BLE_ImuSampleReady();
+}
+
+/**
+  * @brief DEEPSTOP wake path for the same DRDY edge.
+  *        In low-power mode the GPIO/EXTI block is unpowered, so a DRDY edge
+  *        does NOT reach GPIOB_IRQHandler. It arrives instead through
+  *        PWR_ExitOffMode() -> HAL_PWR_WKUP_IRQHandler() -> here.
+  *        Both entry points must schedule the same work or sampling stops
+  *        dead after the first sleep.
+  */
+void HAL_PWR_WKUPx_Callback(uint32_t WakeupIOs)
+{
+	if ((WakeupIOs & PWR_WAKEUP_PB9) == 0U) return;
+
+	APP_BLE_ImuSampleReady();
 }
 
 static void APP_BLE_TiltPoll_Task(void)
@@ -998,7 +1015,7 @@ static void APP_BLE_TiltPoll_Task(void)
 	}
 
 
-	//imu_get_gyro_dps_magnitude(&gyro_mag);   -- gyro turned off for battery save
+	//imu_get_gyro_dps_magnitude(&gyro_mag);   -- gyro turned off in NORMAL for battery save
 	(void)imu_get_acceleration_magnitude_g(&acceleration_magnitude_g);
 
 	uint8_t gyro_was_off = (!TRAINING_MODE_ENABLED && tilt_detector_get_state() == TILT_STATE_NORMAL) ? 1U : 0U;
@@ -1006,7 +1023,7 @@ static void APP_BLE_TiltPoll_Task(void)
 	/* dt must be the REAL DRDY period, not the requested interval -- the ODR
 	   ladder quantizes hard (NORMAL asks 1000 ms, gets 533 ms). Accumulate the
 	   sub-millisecond remainder so the integrated time stays exact rather than
-	   drifting a few % per sample. */
+	   drifting per sample. */
 	static uint32_t dt_remainder_us = 0;
 	uint32_t period_us = imu_get_actual_period_us();
 	if (period_us == 0U) period_us = armed_interval_ms * 1000U;   /* pre-init fallback */
@@ -1093,9 +1110,8 @@ static void APP_BLE_TiltPoll_Task(void)
 			{
 			    Landslide_Mark_Pending_As_Historical();
 
-				/* Backlog now drains one Landslide_Send_Next_Pending() call per
-				   DRDY edge. A transition into WARNING/CRITICAL also raises the
-				   ODR, so the replay rate rises with it. */
+				/* New: Backlog drains one Landslide_Send_Next_Pending() call per
+				   DRDY edge */
 			}
 		}
 
