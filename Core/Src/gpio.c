@@ -78,14 +78,20 @@ void MX_GPIO_Init(void)
 #else
   GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG;
 #endif
-  GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
+  /* NO internal pull on PB9. The board already defines this net with an
+     external 4.7k pull-up (R1, IMU_INT1). An internal pull-down here fights
+     it continuously -- that divider costs ~700 uA and is why PB8/PB9/PB10/PB11
+     are carved out of the "pull every floating pad" rule that took the floor
+     from 880 uA to 130 uA. Floating-pad leakage does not apply to these four:
+     they are externally defined. */
+  GPIO_InitStruct.Pull      = GPIO_NOPULL;
   GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = 0;
   HAL_GPIO_Init(IMU_INT1_GPIO_Port, &GPIO_InitStruct);
 
-  /* Pad-level pull, survives low-power modes (the GPIO block's does not). */
+  /* Leave both PWR pad pulls OFF on PB9, for the same reason. */
   HAL_PWREx_DisableGPIOPullUp(PWR_GPIO_B, PWR_GPIO_BIT_9);
-  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, PWR_GPIO_BIT_9);
+  HAL_PWREx_DisableGPIOPullDown(PWR_GPIO_B, PWR_GPIO_BIT_9);
 
 #if TRAINING_MODE_ENABLED
   HAL_NVIC_SetPriority(IMU_INT1_EXTI_IRQn, 3, 0);

@@ -37,29 +37,29 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS
  16 .ARM.attributes 0000002c  00000000  00000000  0002f5b4  2**0
                   CONTENTS, READONLY
- 17 .debug_info   0003be62  00000000  00000000  0002f5e0  2**0
+ 17 .debug_info   0003be48  00000000  00000000  0002f5e0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_abbrev 00008cc5  00000000  00000000  0006b442  2**0
+ 18 .debug_abbrev 00008cc5  00000000  00000000  0006b428  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_aranges 00003d00  00000000  00000000  00074108  2**3
+ 19 .debug_aranges 00003d00  00000000  00000000  000740f0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_rnglists 00002e1e  00000000  00000000  00077e08  2**0
+ 20 .debug_rnglists 00002e1e  00000000  00000000  00077df0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_macro  0002b351  00000000  00000000  0007ac26  2**0
+ 21 .debug_macro  0002b351  00000000  00000000  0007ac0e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 22 .debug_line   00041ca8  00000000  00000000  000a5f77  2**0
+ 22 .debug_line   00041ca8  00000000  00000000  000a5f5f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 23 .debug_str    000ddcb8  00000000  00000000  000e7c1f  2**0
+ 23 .debug_str    000ddcb8  00000000  00000000  000e7c07  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 24 .comment      0000023b  00000000  00000000  001c58d7  2**0
+ 24 .comment      0000023b  00000000  00000000  001c58bf  2**0
                   CONTENTS, READONLY
- 25 .arm_vfe_header 00000004  00000000  00000000  001c5b14  2**2
+ 25 .arm_vfe_header 00000004  00000000  00000000  001c5afc  2**2
                   CONTENTS, READONLY
- 26 .debug_frame  0000efb8  00000000  00000000  001c5b18  2**2
+ 26 .debug_frame  0000efb8  00000000  00000000  001c5b00  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 27 .debug_line_str 000000f9  00000000  00000000  001d4ad0  2**0
+ 27 .debug_line_str 000000f9  00000000  00000000  001d4ab8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 28 .debug_loclists 00000407  00000000  00000000  001d4bc9  2**0
+ 28 .debug_loclists 00000407  00000000  00000000  001d4bb1  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -8010,10 +8010,14 @@ void MX_GPIO_Init(void)
 10043720:	1d3b      	adds	r3, r7, #4
 10043722:	2203      	movs	r2, #3
 10043724:	605a      	str	r2, [r3, #4]
-#endif
-  GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
+     external 4.7k pull-up (R1, IMU_INT1). An internal pull-down here fights
+     it continuously -- that divider costs ~700 uA and is why PB8/PB9/PB10/PB11
+     are carved out of the "pull every floating pad" rule that took the floor
+     from 880 uA to 130 uA. Floating-pad leakage does not apply to these four:
+     they are externally defined. */
+  GPIO_InitStruct.Pull      = GPIO_NOPULL;
 10043726:	1d3b      	adds	r3, r7, #4
-10043728:	2202      	movs	r2, #2
+10043728:	2200      	movs	r2, #0
 1004372a:	609a      	str	r2, [r3, #8]
   GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
 1004372c:	1d3b      	adds	r3, r7, #4
@@ -8030,19 +8034,19 @@ void MX_GPIO_Init(void)
 1004373e:	0010      	movs	r0, r2
 10043740:	f003 fcc0 	bl	100470c4 <HAL_GPIO_Init>
 
-  /* Pad-level pull, survives low-power modes (the GPIO block's does not). */
+  /* Leave both PWR pad pulls OFF on PB9, for the same reason. */
   HAL_PWREx_DisableGPIOPullUp(PWR_GPIO_B, PWR_GPIO_BIT_9);
 10043744:	2380      	movs	r3, #128	@ 0x80
 10043746:	009b      	lsls	r3, r3, #2
 10043748:	0019      	movs	r1, r3
 1004374a:	2001      	movs	r0, #1
 1004374c:	f005 f8d2 	bl	100488f4 <HAL_PWREx_DisableGPIOPullUp>
-  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, PWR_GPIO_BIT_9);
+  HAL_PWREx_DisableGPIOPullDown(PWR_GPIO_B, PWR_GPIO_BIT_9);
 10043750:	2380      	movs	r3, #128	@ 0x80
 10043752:	009b      	lsls	r3, r3, #2
 10043754:	0019      	movs	r1, r3
 10043756:	2001      	movs	r0, #1
-10043758:	f005 f8fa 	bl	10048950 <HAL_PWREx_EnableGPIOPullDown>
+10043758:	f005 f934 	bl	100489c4 <HAL_PWREx_DisableGPIOPullDown>
 
   /* EXTI is unpowered in DEEPSTOP, so PB9 must also be a PWR wakeup source. */
   HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PB9, PWR_WUP_RISIEDG);
