@@ -28,6 +28,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "imu.h"   /* TRAINING_MODE_ENABLED: gates GPIOB_IRQHandler below.
+                      Without this the macro is undefined here and #if would
+                      silently evaluate to 0, dropping the handler from the
+                      training build too. */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -175,11 +179,11 @@ void PKA_IRQHandler(void)
   /* USER CODE END PKA_IRQn 1 */
 }
 
+#if TRAINING_MODE_ENABLED
 /**
-  * @brief This function handles GPIOB interrupt.
-  *        NOTE: this handler was missing while the .ioc had NVIC.GPIOB_IRQn
-  *        enabled -- any edge on PB9 landed in the weak Default_Handler
-  *        (infinite loop), which looks exactly like a silent CPU freeze.
+  * @brief This function handles GPIOB interrupt (IMU DRDY on PB9).
+  *        Training build only -- in production GPIOB_IRQn is disabled in
+  *        MX_GPIO_Init() and PB9 is analog, so nothing can raise it.
   */
 void GPIOB_IRQHandler(void)
 {
@@ -189,6 +193,7 @@ void GPIOB_IRQHandler(void)
   /* USER CODE BEGIN GPIOB_IRQn 1 */
   /* USER CODE END GPIOB_IRQn 1 */
 }
+#endif /* TRAINING_MODE_ENABLED */
 
 /**
   * @brief This function handles RADIO_TIMER_CPU_WKUP global interrupt.

@@ -59,7 +59,7 @@ Core/Src/stm32wb0x_it.o: ../Core/Src/stm32wb0x_it.c ../Core/Inc/main.h \
  ../Projects/Common/BLE/Modules/miscutil.h \
  ../Projects/Common/BLE/Modules/crash_handler.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_usart.h \
- ../Core/Inc/SEGGER_RTT.h ../Core/Inc/SEGGER_RTT_Conf.h
+ ../Core/Inc/SEGGER_RTT.h ../Core/Inc/SEGGER_RTT_Conf.h ../Core/Inc/imu.h
 ../Core/Inc/main.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal.h:
 ../Core/Inc/stm32wb0x_hal_conf.h:
@@ -128,3 +128,4 @@ Core/Src/stm32wb0x_it.o: ../Core/Src/stm32wb0x_it.c ../Core/Inc/main.h \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_usart.h:
 ../Core/Inc/SEGGER_RTT.h:
 ../Core/Inc/SEGGER_RTT_Conf.h:
+../Core/Inc/imu.h:

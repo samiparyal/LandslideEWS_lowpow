@@ -9,14 +9,13 @@
 
 static stmdev_ctx_t ctx;
 static uint32_t s_current_poll_ms = 0;
-/* True DRDY period for the ODR currently programmed, in microseconds.
-   Kept in us because the quantized rates are not whole milliseconds. */
-static uint32_t s_actual_period_us = 0;
+/* True DRDY period of the ODR currently programmed, in ms. Fractional, because
+   the ODR ladder is quantized (120 Hz -> 8.3333 ms). This IS the sample dt. */
+static float s_period_ms = 0.0f;
+static uint8_t s_gyro_enabled = 0;
 
 static int16_t s_accel[3];
 static int16_t s_gyro[3];
-static uint8_t s_accel_fresh;
-static uint8_t s_gyro_fresh;
 
 static void imu_apply_training_mode(void);
 
@@ -40,9 +39,9 @@ int32_t imu_init(I2C_HandleTypeDef *hi2c)
 	 ctx.mdelay(20);
 
 	 //xl config
-	 (void)lsm6dsv16x_xl_data_rate_set(&ctx, LSM6DSV16X_ODR_AT_7Hz5);  // changed from 15Hz
 	 (void)lsm6dsv16x_xl_full_scale_set(&ctx, LSM6DSV16X_2g);
 	 (void)lsm6dsv16x_xl_mode_set(&ctx, LSM6DSV16X_XL_LOW_POWER_2_AVG_MD);
+	 (void)imu_set_rate_ms(IMU_DEFAULT_RATE_MS);
 
 	 //gyro config
 	 imu_gyro_off();
@@ -58,19 +57,30 @@ int32_t imu_init(I2C_HandleTypeDef *hi2c)
 
 	 */
 
+#if TRAINING_MODE_ENABLED
+	 /* --- Interrupt-driven sampling. Training build ONLY.
+	    Production leaves the sensor's interrupt engine completely off and INT1
+	    undriven: sampling there is virtual-timer paced and nothing listens to
+	    the pin, so none of this should exist in that build. --- */
 	 lsm6dsv16x_interrupt_mode_t int_mode = {0};
 	 int_mode.enable = 1;
 	 int_mode.lir    = 0; //pulsed
 	 if (lsm6dsv16x_interrupt_enable_set(&ctx, int_mode) != 0) return -2;
 
-	 /* Route accelerometer data-ready onto INT1 (to -> PB9 EXTI).
-	   */
+	 /* DRDY defaults to LATCHED: INT1 held HIGH from data-ready until the
+	    output registers are read. PULSED gives a short pulse instead -- a clean
+	    edge with the line idle low, so nothing sits asserted on the wakeup
+	    input between samples. */
+	 if (lsm6dsv16x_data_ready_mode_set(&ctx, LSM6DSV16X_DRDY_PULSED) != 0) return -2;
+
+	 /* Route accelerometer data-ready onto INT1 -> PB9 EXTI. */
 	 {
 		 lsm6dsv16x_pin_int_route_t route = {0};
 		 if (lsm6dsv16x_pin_int1_route_get(&ctx, &route) != 0) return -3;
 		 route.drdy_xl = 1;
 		 if (lsm6dsv16x_pin_int1_route_set(&ctx, &route) != 0) return -3;
 	 }
+#endif /* TRAINING_MODE_ENABLED */
 
 	 imu_apply_training_mode(); // only takes effect if training flag set
 
@@ -124,64 +134,59 @@ int32_t imu_read_wakeup_src(uint8_t *src)
 void imu_gyro_on(void)
 {
 #if (TRAINING_MODE_ENABLED && !TRAINING_MODE_GYRO_ON)
-	/* Training with gyro disabled: ignore every request to power it up,
-	   including the one in tilt_detector_reset(). */
-	(void)lsm6dsv16x_gy_data_rate_set(&ctx, LSM6DSV16X_ODR_OFF);
+	imu_gyro_off();
 	return;
 #else
 	(void)lsm6dsv16x_gy_data_rate_set(&ctx, LSM6DSV16X_ODR_AT_7Hz5);
 	(void)lsm6dsv16x_gy_full_scale_set(&ctx, LSM6DSV16X_1000dps);
 	(void)lsm6dsv16x_gy_mode_set(&ctx, LSM6DSV16X_GY_LOW_POWER_MD);
+	s_gyro_enabled = 1U;
 #endif
 }
 
 void imu_gyro_off(void)
 {
 	(void)lsm6dsv16x_gy_data_rate_set(&ctx, LSM6DSV16X_ODR_OFF);
+	s_gyro_enabled = 0U;
 }
 
 
+/* Only ever called from the DRDY interrupt path, so the sensor has already
+   said data is ready  */
 int32_t imu_poll(void)
 {
-	lsm6dsv16x_data_ready_t drdy = {0};
-	if (lsm6dsv16x_flag_data_ready_get(&ctx, &drdy) != 0) return -1;
+	if (lsm6dsv16x_acceleration_raw_get(&ctx, s_accel) != 0) return -1;
 
-	s_accel_fresh = (drdy.drdy_xl && lsm6dsv16x_acceleration_raw_get(&ctx, s_accel) == 0) ? 1U : 0U;
-	s_gyro_fresh  = (drdy.drdy_gy && lsm6dsv16x_angular_rate_raw_get(&ctx, s_gyro) == 0)  ? 1U : 0U;
-
-	return s_accel_fresh ? 0 : -1;
+	if (s_gyro_enabled)
+	{
+		/* Gyro shares the accel ODR, so its sample is in step with this one. */
+		(void)lsm6dsv16x_angular_rate_raw_get(&ctx, s_gyro);
+	}
+	return 0;
 }
 
 
-
-
-int32_t imu_compute_tilt_deg(float *tilt_deg)
+int32_t imu_get_tilt_and_magnitude(float *tilt_deg, float *mag_g)
 {
 	float ax = (float)s_accel[0] * 0.000061f;
 	float ay = (float)s_accel[1] * 0.000061f;
 	float az = (float)s_accel[2] * 0.000061f;
+
 	float mag = sqrtf(ax*ax + ay*ay + az*az);
-	if (mag < 0.5f) return -1;   /* freefall, keep last tilt_deg */
+	if (mag_g != NULL) *mag_g = mag;
+
+	if (mag < 0.5f) return -1;   /* freefall */
 
 	float az_norm = az / mag;
 	if (az_norm >  1.0f) az_norm =  1.0f;
 	if (az_norm < -1.0f) az_norm = -1.0f;
-	*tilt_deg = acosf(fabsf(az_norm)) * (180.0f/3.14159265f);
-	return 0;
-}
-
-int32_t imu_get_acceleration_magnitude_g(float *acceleration_magnitude_g)
-{
-	float ax = (float)s_accel[0] * 0.000061f;
-	float ay = (float)s_accel[1] * 0.000061f;
-	float az = (float)s_accel[2] * 0.000061f;
-	*acceleration_magnitude_g = sqrtf(ax*ax + ay*ay + az*az);
+	if (tilt_deg != NULL) *tilt_deg = acosf(fabsf(az_norm)) * (180.0f/3.14159265f);
 	return 0;
 }
 
 int32_t imu_get_gyro_dps_magnitude(float *magnitude)
 {
-	if (!s_gyro_fresh) return -1;
+	if (!s_gyro_enabled) return -1;
 	float gx = (float)s_gyro[0] * 0.035f;
 	float gy = (float)s_gyro[1] * 0.035f;
 	float gz = (float)s_gyro[2] * 0.035f;
@@ -198,7 +203,7 @@ int32_t imu_set_rate_ms(uint32_t poll_interval_ms)
 		poll_interval_ms = TRAINING_MODE_RATE_MS;
 	}
 
-	if (poll_interval_ms == s_current_poll_ms) return 0;   /* no change, skip I2C traffic */
+	if (poll_interval_ms == s_current_poll_ms) return 0;
 	s_current_poll_ms = poll_interval_ms;
 
 	uint32_t hz = 1000U / poll_interval_ms;   /* e.g. 200ms -> 5Hz*/
@@ -206,13 +211,17 @@ int32_t imu_set_rate_ms(uint32_t poll_interval_ms)
 	/* The ODR ladder is quantized. soo Record the true period alongside it: the tilt
 	   detector integrates dt which needs accurate period */
 	lsm6dsv16x_data_rate_t odr;
-	if      (hz <= 2U)   { odr = LSM6DSV16X_ODR_AT_1Hz875; s_actual_period_us = 533333U; }
-	else if (hz <= 8U)   { odr = LSM6DSV16X_ODR_AT_7Hz5;   s_actual_period_us = 133333U; }
-	else if (hz <= 16U)  { odr = LSM6DSV16X_ODR_AT_15Hz;   s_actual_period_us =  66667U; }
-	else if (hz <= 32U)  { odr = LSM6DSV16X_ODR_AT_30Hz;   s_actual_period_us =  33333U; }
-	else if (hz <= 64U)  { odr = LSM6DSV16X_ODR_AT_60Hz;   s_actual_period_us =  16667U; }
-	else if (hz <= 128U) { odr = LSM6DSV16X_ODR_AT_120Hz;  s_actual_period_us =   8333U; }
-	else                 { odr = LSM6DSV16X_ODR_AT_240Hz;  s_actual_period_us =   4167U; }
+	if      (hz <= 2U)   { odr = LSM6DSV16X_ODR_AT_1Hz875; s_period_ms = 533.3333f; }
+	else if (hz <= 8U)   { odr = LSM6DSV16X_ODR_AT_7Hz5;   s_period_ms = 133.3333f; }
+	else if (hz <= 16U)  { odr = LSM6DSV16X_ODR_AT_15Hz;   s_period_ms =  66.6667f; }
+	else if (hz <= 32U)  { odr = LSM6DSV16X_ODR_AT_30Hz;   s_period_ms =  33.3333f; }
+	else if (hz <= 64U)  { odr = LSM6DSV16X_ODR_AT_60Hz;   s_period_ms =  16.6667f; }
+	else if (hz <= 128U) { odr = LSM6DSV16X_ODR_AT_120Hz;  s_period_ms =   8.3333f; }
+	else                 { odr = LSM6DSV16X_ODR_AT_240Hz;  s_period_ms =   4.1667f; }
+
+#if !TRAINING_MODE_ENABLED
+	s_period_ms = (float)poll_interval_ms;
+#endif
 
 	int32_t ret = lsm6dsv16x_xl_data_rate_set(&ctx, odr);
 
@@ -226,9 +235,9 @@ int32_t imu_set_rate_ms(uint32_t poll_interval_ms)
 }
 
 
-uint32_t imu_get_actual_period_us(void)
+float imu_get_period_ms(void)
 {
-	return s_actual_period_us;
+	return s_period_ms;
 }
 
 

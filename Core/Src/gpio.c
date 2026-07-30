@@ -66,31 +66,38 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF5_SWDIO;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* IMU data-ready interrupt : PB9 (LSM6DSV16X INT1).
-     Was left in its reset state (analog) while the .ioc already enabled
-     GPIOB_IRQn -- configure it explicitly as a rising-edge EXTI input.
-     INT1 is push-pull active-high on the sensor, so pull DOWN (not up) keeps
-     the line defined while the sensor is idle and prevents spurious edges. */
+  /* IMU INT1 -> PB9. Two configurations:
+       TRAINING   : rising-edge EXTI + PWR wakeup, DRDY paces sampling.
+       PRODUCTION : ANALOG + pull-down, exactly as in the build that reached
+                    130 uA. Sampling is virtual-timer driven there, so the pin
+                    is not needed and a live EXTI input on it is what keeps the
+                    device off the DEEPSTOP floor. */
   GPIO_InitStruct.Pin       = IMU_INT1_Pin;
+#if TRAINING_MODE_ENABLED
   GPIO_InitStruct.Mode      = GPIO_MODE_IT_RISING;
+#else
+  GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG;
+#endif
   GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = 0;
   HAL_GPIO_Init(IMU_INT1_GPIO_Port, &GPIO_InitStruct);
 
-  /* Match the pad-level pull to the EXTI config (WB0 PWR keeps its own
-     pull settings that survive low-power modes). */
+  /* Pad-level pull, survives low-power modes (the GPIO block's does not). */
   HAL_PWREx_DisableGPIOPullUp(PWR_GPIO_B, PWR_GPIO_BIT_9);
   HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, PWR_GPIO_BIT_9);
 
+#if TRAINING_MODE_ENABLED
   HAL_NVIC_SetPriority(IMU_INT1_EXTI_IRQn, 3, 0);
   HAL_NVIC_EnableIRQ(IMU_INT1_EXTI_IRQn);
 
-  /* EXTI logic is unpowered in low-power mode, so the
-     NVIC/EXTI config above only covers Run/Idle -- PB9 must also be registered
-     with the PWR block or DRDY will stop waking the device once CFG_LPM_SUPPORTED
-     is turned on. */
+  /* EXTI is unpowered in DEEPSTOP, so PB9 must also be a PWR wakeup source. */
   HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PB9, PWR_WUP_RISIEDG);
+#else
+  /* Nothing may wake the CPU from this pin in production. */
+  HAL_NVIC_DisableIRQ(IMU_INT1_EXTI_IRQn);
+  HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PB9);
+#endif
 
   /**/
   HAL_PWREx_DisableGPIOPullUp(PWR_GPIO_B, PWR_GPIO_BIT_3);

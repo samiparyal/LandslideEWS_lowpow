@@ -403,8 +403,9 @@ tBleStatus Landslide_Send_Next_Pending(void)
 
 	while (s_imu_pending > 0U)
 	{
-		rawImuValue = s_imu_buffer[s_imu_send_idx];
-
+		/* No copy into rawImuValue: the notify below sends the ring slot
+		   directly. rawImuValue only backs GATT *read* requests on this
+		   characteristic, and the gateway subscribes rather than reads. */
 		tBleStatus status = aci_gatt_srv_notify(connectionHandle, BLE_GATT_UNENHANCED_ATT_L2CAP_CID,
 		                            getRawImuValueHandle(), BLE_GATT_SRV_NOTIFY_FLAG_NOTIFICATION,
 		                            sizeof(RawImuSample_t), (uint8_t*)&s_imu_buffer[s_imu_send_idx]);

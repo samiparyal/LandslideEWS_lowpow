@@ -12,4 +12,4 @@
 ../Core/Src/landslide_service.c:348:12:Landslide_Update_Tilt_Data	32	static
 ../Core/Src/landslide_service.c:365:12:Landslide_Buffer_Sample	64	static
 ../Core/Src/landslide_service.c:399:12:Landslide_Send_Next_Pending	32	static
-../Core/Src/landslide_service.c:425:6:Landslide_Mark_Pending_As_Historical	16	static
+../Core/Src/landslide_service.c:426:6:Landslide_Mark_Pending_As_Historical	16	static

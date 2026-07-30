@@ -29,22 +29,6 @@ uint8_t tilt_detector_get_trigger_reason(void);
 #define CONFIRM_DOWN_WARNING   3U
 #define CONFIRM_DOWN_CRITICAL  5U
 
-///*----Broadcast intervals (ms)---*/
-//#define BROADCAST_NORMAL_MS 3600000U //1 hr
-//#define BROADCAST_WARNING_MS 600000U //10 min
-//#define BROADCAST_CRITICAL_MS 60000U //1 min
-//
-///*----- Poll intervals (ms) ---- used by app_ble.c */
-//#define POLL_INTERVAL_CALIB_MS     200U  // fast during calibration
-//#define POLL_INTERVAL_NORMAL_MS   30000U  // 5s : for slow creep
-//#define POLL_INTERVAL_WARNING_MS  1000U  // 1s : watching closely
-//#define POLL_INTERVAL_CRITICAL_MS  200U  // 200ms : active event
-//
-///*-----Raw IMU send interval (ms) --------------*/
-//#define RAW_IMU_SEND_INTERVAL_MS           30000U  // 3 sec, NORMAL
-//#define RAW_IMU_SEND_INTERVAL_WARNING_MS    1000U   // 1 Hz
-//#define RAW_IMU_SEND_INTERVAL_CRITICAL_MS    200U   // 10 Hz
-
 /*----- Poll intervals (ms) ---- how often the IMU wakes and is measured */
 #define POLL_INTERVAL_CALIB_MS     200U   // fast during calibration
 #define POLL_INTERVAL_NORMAL_MS    1000U   // 1 Hz
@@ -94,10 +78,15 @@ typedef enum {
 void tilt_detector_reset(void);
 
 //TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, uint32_t dt_ms); //dt_ms -- elapsed time since the previous tilt_detector_update() call
-TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float acceleration_magnitude_g, uint32_t dt_ms);
+TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float acceleration_magnitude_g, float dt_ms);
 float tilt_detector_get_rate_dph(void);   // slow tilt rate, deg/hour
 
 TiltState_t tilt_detector_get_state(void);
+
+/* Sampling cadence for the current state -> feed to imu_set_rate_ms().
+   Belongs to the state machine, not the BLE layer. imu.c applies its own
+   training-mode override on top. */
+uint32_t tilt_detector_get_poll_interval_ms(void);
 float tilt_detector_get_deviation(void);
 float tilt_detector_get_baseline(void);
 uint8_t tilt_detector_get_calib_percent(void);
