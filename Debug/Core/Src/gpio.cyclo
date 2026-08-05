@@ -1,2 +1,2 @@
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_bus.h:229:22:LL_AHB1_GRP1_EnableClock	1
-../Core/Src/gpio.c:42:6:MX_GPIO_Init	1
+../Core/Src/gpio.c:43:6:MX_GPIO_Init	1

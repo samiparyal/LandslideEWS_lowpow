@@ -61,13 +61,13 @@
 #define ADV_LP_INTERVAL_MAX    (0x1900)  // 6000 * 0.625ms = 4000ms
 
 #define ADV_TYPE                            (HCI_ADV_EVENT_PROP_LEGACY|HCI_ADV_EVENT_PROP_CONNECTABLE|HCI_ADV_EVENT_PROP_SCANNABLE)
-//#define ADV_TYPE                            (HCI_ADV_EVENT_PROP_CONNECTABLE)
-#define ADV_FILTER                          HCI_ADV_FILTER_NONE
+//#define ADV_TYPE                            HCI_ADV_EVENT_PROP_CONNECTABLE
+#define ADV_FILTER                         HCI_ADV_FILTER_NONE //HCI_ADV_FILTER_ACCEPT_LIST_CONNECT //uncomment on production
 
 /**
  * Define IO Authentication
  */
-#define CFG_BONDING_MODE                    (0)
+#define CFG_BONDING_MODE                    (1)
 #define CFG_FIXED_PIN                       (111111)
 #define CFG_ENCRYPTION_KEY_SIZE_MAX         (16)
 #define CFG_ENCRYPTION_KEY_SIZE_MIN         (8)
@@ -80,7 +80,7 @@
 /**
  * Define MITM modes
  */
-#define CFG_MITM_PROTECTION                 GAP_MITM_PROTECTION_REQUIRED
+#define CFG_MITM_PROTECTION                 GAP_MITM_PROTECTION_NOT_REQUIRED
 
 /**
  * Define Secure Connections Support
@@ -123,6 +123,9 @@
  * Maximum number of attributes that can be stored in the GATT database in addition to the attributes number already defined for the GATT and GAP services
  * (BLE_STACK_NUM_GATT_MANDATORY_ATTRIBUTES value on STM32_BLE middleware, ble_stack.h header file).
  */
+/* 1 service decl + 3 characteristics x (decl + value + CCCD) = 10, plus margin.
+   7 was correct only while there were 2 characteristics -- too small now, and
+   aci_gatt_srv_add_service() does not bounds-check. */
 #define CFG_BLE_NUM_GATT_ATTRIBUTES                     (16)
 
 /**
@@ -140,7 +143,7 @@
  * Maximum duration of the connection event in system time units (625/256 us =~
  * 2.44 us) when the device is in Peripheral role [0-0xFFFFFFFF].
  */
-#define CFG_BLE_CONN_EVENT_LENGTH_MAX                   0x00001B00//(0x00000FA0) --- 6912 STU = 16.9 ms
+#define CFG_BLE_CONN_EVENT_LENGTH_MAX                   (0x00001B00)
 
 /**
  * Sleep clock accuracy (ppm).
@@ -401,7 +404,7 @@ typedef enum
 /**
  * Enable or disable debug prints.
  */
-#define CFG_DEBUG_APP_TRACE             (1)
+#define CFG_DEBUG_APP_TRACE             (0)
 
 /**
  * Use or not advanced trace module. UART interrupts to be enabled.

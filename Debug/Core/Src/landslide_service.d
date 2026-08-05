@@ -40,10 +40,6 @@ Core/Src/landslide_service.o: ../Core/Src/landslide_service.c \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
- ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Utilities/misc/stm32_mem.h ../Core/Inc/app_common.h \
- ../Core/Inc/app_conf.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_stack.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_status.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_stack_user_cfg.h \
@@ -55,10 +51,10 @@ Core/Src/landslide_service.o: ../Core/Src/landslide_service.c \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_types.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_const.h \
  ../Middlewares/ST/STM32_BLE/stack/include/uuid.h \
- ../Core/Inc/app_common.h ../Core/Inc/SEGGER_RTT.h \
+ ../Core/Inc/app_common.h ../Core/Inc/app_conf.h ../Core/Inc/SEGGER_RTT.h \
  ../Core/Inc/SEGGER_RTT_Conf.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_gatt.h ../Core/Inc/imu.h \
- ../Core/Inc/tilt_detector.h
+ ../Core/Inc/tilt_detector.h ../Core/Inc/imu.h
 ../Core/Inc/landslide_service.h:
 ../Middlewares/ST/STM32_BLE/ble.h:
 ../STM32_BLE/App/ble_conf.h:
@@ -102,12 +98,6 @@ Core/Src/landslide_service.o: ../Core/Src/landslide_service.c \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../Core/Inc/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Utilities/misc/stm32_mem.h:
-../Core/Inc/app_common.h:
-../Core/Inc/app_conf.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_stack.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_status.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_stack_user_cfg.h:
@@ -120,8 +110,10 @@ Core/Src/landslide_service.o: ../Core/Src/landslide_service.c \
 ../Middlewares/ST/STM32_BLE/stack/include/ble_const.h:
 ../Middlewares/ST/STM32_BLE/stack/include/uuid.h:
 ../Core/Inc/app_common.h:
+../Core/Inc/app_conf.h:
 ../Core/Inc/SEGGER_RTT.h:
 ../Core/Inc/SEGGER_RTT_Conf.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_gatt.h:
 ../Core/Inc/imu.h:
 ../Core/Inc/tilt_detector.h:
+../Core/Inc/imu.h:

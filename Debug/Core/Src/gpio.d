@@ -38,15 +38,12 @@ Core/Src/gpio.o: ../Core/Src/gpio.c ../Core/Inc/gpio.h ../Core/Inc/main.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
- ../Core/Inc/app_entry.h ../Core/Inc/app_conf.h \
- ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Utilities/misc/stm32_mem.h ../Core/Inc/app_common.h \
+ ../Core/Inc/app_entry.h ../Core/Inc/app_conf.h ../Core/Inc/app_common.h \
  ../System/Config/Debug_GPIO/app_debug.h \
  ../Projects/Common/BLE/Modules/RTDebug/RTDebug.h \
  ../System/Config/Debug_GPIO/debug_config.h ../Core/Inc/app_conf.h \
  ../Projects/Common/BLE/Modules/RTDebug/debug_signals.h \
- ../Projects/Common/BLE/Modules/compiler.h
+ ../Projects/Common/BLE/Modules/compiler.h ../Core/Inc/imu.h
 ../Core/Inc/gpio.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal.h:
@@ -90,10 +87,6 @@ Core/Src/gpio.o: ../Core/Src/gpio.c ../Core/Inc/gpio.h ../Core/Inc/main.h \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h:
 ../Core/Inc/app_entry.h:
 ../Core/Inc/app_conf.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../Core/Inc/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Utilities/misc/stm32_mem.h:
 ../Core/Inc/app_common.h:
 ../System/Config/Debug_GPIO/app_debug.h:
 ../Projects/Common/BLE/Modules/RTDebug/RTDebug.h:
@@ -101,3 +94,4 @@ Core/Src/gpio.o: ../Core/Src/gpio.c ../Core/Inc/gpio.h ../Core/Inc/main.h \
 ../Core/Inc/app_conf.h:
 ../Projects/Common/BLE/Modules/RTDebug/debug_signals.h:
 ../Projects/Common/BLE/Modules/compiler.h:
+../Core/Inc/imu.h:

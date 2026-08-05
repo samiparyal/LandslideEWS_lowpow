@@ -41,7 +41,6 @@ Projects/Common/BLE/Modules/Flash/flash_driver.o: \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
- ../Utilities/trace/adv_trace/stm32_adv_trace.h \
  ../Projects/Common/BLE/Modules/Flash/flash_driver.h \
  ../Projects/Common/BLE/Modules/utilities_common.h ../Core/Inc/app_conf.h \
  ../Middlewares/ST/STM32_BLE/ble.h ../STM32_BLE/App/ble_conf.h \
@@ -100,7 +99,6 @@ Projects/Common/BLE/Modules/Flash/flash_driver.o: \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
 ../Projects/Common/BLE/Modules/Flash/flash_driver.h:
 ../Projects/Common/BLE/Modules/utilities_common.h:
 ../Core/Inc/app_conf.h:

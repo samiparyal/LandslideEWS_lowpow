@@ -121,25 +121,12 @@ static const List_Entry_t s_accepted_devices[] = {
 
 static VTIMER_HandleType AlertTimerHandle;
 
-/* Two sampling architectures, selected by TRAINING_MODE_ENABLED:
- *
- *   TRAINING (=1): IMU DRDY interrupt drives sampling. Survives the fast rates
- *                  that made virtual timers contend with the radio scheduler
- *                  and freeze. Power is irrelevant on the bench.
- *
- *   PRODUCTION (=0): virtual timers drive sampling and sending, at exactly the
- *                  POLL_INTERVAL_* / BROADCAST_* values. This is the only
- *                  configuration that reaches the DEEPSTOP floor (~130 uA);
- *                  with no virtual timer armed the radio-timer driver refuses
- *                  deep sleep and sits at ~1.7 mA. INT1/PB9 stays analog here.
- */
-#if !TRAINING_MODE_ENABLED
-static VTIMER_HandleType TiltPollTimerHandle;
-static VTIMER_HandleType RawImuTimerHandle;
-static void APP_BLE_TiltPollTimer_Callback(void *context);
-static void APP_BLE_RawImuTimer_Callback(void *context);
-static uint32_t APP_BLE_BroadcastIntervalMs(void);
-#endif
+/* Sampling is paced solely by the IMU's DRDY pulse on PB9 -- there is no poll
+ * timer. The cadence is set by the ODR (imu_set_rate), so changing state
+ * changes the wake rate with nothing to re-arm. Virtual timers were used here
+ * before and are deliberately gone: arming one per sample put ~200 arms/s
+ * against the radio scheduler's single hardware wakeup timer and froze the MCU.
+ * Raw-IMU transmission is separately gated on BROADCAST_<state>_MS. */
 static uint8_t g_in_alert_mode = 0;
 
 
@@ -171,40 +158,52 @@ static void APP_BLE_TiltPoll_Task(void);
 /* Private functions ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PF */
-#if !TRAINING_MODE_ENABLED
-/* Send cadence per state, used to re-arm RawImuTimerHandle. */
+/* Send cadence per state, used to gate the raw-IMU send below. */
 static uint32_t APP_BLE_BroadcastIntervalMs(void)
 {
+#if TRAINING_MODE_ENABLED
+    /* Bench data collection: every DRDY sample must reach the gateway, so the
+       per-state cadence does not apply. 0 makes the gate below always pass.
+       Without this the raw stream is throttled to BROADCAST_NORMAL_MS (60 s)
+       in NORMAL, which looks exactly like a hung node. */
+    return 0U;
+#else
+    /* Pre-event backlog from before a state transition drains fast, ahead of
+       the new state's normal cadence, so the gateway gets the lead-up to the
+       event quickly instead of it trickling out mixed with live samples. */
+    if (Landslide_Historical_Pending()) return BROADCAST_HIST_MS;
+
     switch (tilt_detector_get_state())
     {
         case TILT_STATE_CRITICAL:    return BROADCAST_CRITICAL_MS;
         case TILT_STATE_WARNING:     return BROADCAST_WARNING_MS;
-        case TILT_STATE_CALIBRATING: return POLL_INTERVAL_CALIB_MS;
+        case TILT_STATE_CALIBRATING: return BROADCAST_CRITICAL_MS;
         default:                     return BROADCAST_NORMAL_MS;
     }
-}
-
-static void APP_BLE_TiltPollTimer_Callback(void *context)
-{
-    (void)context;
-    /* Re-armed by APP_BLE_TiltPoll_Task, which knows the resulting state. */
-    UTIL_SEQ_SetTask(1U << CFG_TASK_TILT_POLL_ID, CFG_SEQ_PRIO_1);
-}
-
-static void APP_BLE_RawImuTimer_Callback(void *context)
-{
-    (void)context;
-    UTIL_SEQ_SetTask(1U << CFG_TASK_RAW_IMU_SEND_ID, CFG_SEQ_PRIO_1);
-    HAL_RADIO_TIMER_StartVirtualTimer(&RawImuTimerHandle, APP_BLE_BroadcastIntervalMs());
-}
 #endif
+}
 
-/* No rate gating here: in production the RawImu vtimer already fires at the
-   BROADCAST_* cadence, and in training every DRDY edge should be sent. */
 static void APP_BLE_RawImuSend_Task(void)
 {
     (void)Landslide_Send_Next_Pending();
 }
+
+/* DRDY arrives on two paths depending on power state: through GPIOB_IRQHandler
+   while awake, and through PWR_ExitStopMode -> HAL_PWR_WKUP_IRQHandler after
+   DEEPSTOP (the EXTI block is unpowered there). Both must schedule the same
+   work or sampling stops after the first sleep. */
+void HAL_GPIO_EXTI_Callback(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
+{
+    if ((GPIOx != IMU_INT1_GPIO_Port) || (GPIO_Pin != IMU_INT1_Pin)) return;
+    UTIL_SEQ_SetTask(1U << CFG_TASK_TILT_POLL_ID, CFG_SEQ_PRIO_0);
+}
+
+void HAL_PWR_WKUPx_Callback(uint32_t WakeupIOs)
+{
+    if ((WakeupIOs & PWR_WAKEUP_PB9) == 0U) return;
+    UTIL_SEQ_SetTask(1U << CFG_TASK_TILT_POLL_ID, CFG_SEQ_PRIO_0);
+}
+
 /* USER CODE END PF */
 
 /* Functions Definition ------------------------------------------------------*/
@@ -268,7 +267,7 @@ void BLE_Init(void)
     Error_Handler();
   }
 
-  ret = hci_le_set_default_phy(0, HCI_TX_PHYS_LE_1M_PREF, HCI_TX_PHYS_LE_1M_PREF);
+  ret = hci_le_set_default_phy(0, HCI_TX_PHYS_LE_CODED_PREF, HCI_RX_PHYS_LE_CODED_PREF);
     if (ret != BLE_STATUS_SUCCESS) {
         SEGGER_RTT_printf(0, "hci_le_set_default_phy failed: 0x%02X\n", ret);
     }
@@ -491,21 +490,9 @@ void APP_BLE_Init(void)
 	  APP_DBG_MSG("ERROR: Landslide service init failed: 0x%02X\n", status);
   }
 
-#if !TRAINING_MODE_ENABLED
-  /* Production: virtual timers pace both sampling and sending. */
-  TiltPollTimerHandle.callback = APP_BLE_TiltPollTimer_Callback;
-  HAL_RADIO_TIMER_StartVirtualTimer(&TiltPollTimerHandle, POLL_INTERVAL_CALIB_MS);
+  /* Nothing to arm for sampling: imu_init() already set the ODR, so the sensor
+     is pulsing INT1 and the first DRDY edge starts the chain on its own. */
 
-  RawImuTimerHandle.callback = APP_BLE_RawImuTimer_Callback;
-  HAL_RADIO_TIMER_StartVirtualTimer(&RawImuTimerHandle, POLL_INTERVAL_CALIB_MS);
-#endif
-
-  /* Sampling is now driven by the IMU data-ready interrupt (INT1 -> PB9),
-     not by radio virtual timers. Both app virtual timers are gone: they
-     contended with the BLE radio scheduler for the single hardware wakeup
-     timer (see _update_user_timeout() / AN5469 6.1), and their arm rate
-     scaled with TRAINING_MODE_RATE_MS -- which is the variable that
-     correlated with the freeze. */
 
   for (uint8_t i = 0; i < NUM_ACCEPTED_DEVICES; i++)
   {
@@ -815,10 +802,10 @@ static void connection_complete_event(uint8_t Status,
   Landslide_Update_Tilt_Data(dev_x100_16, vel_x100_16);
 
   tBleStatus ret = hci_le_set_phy(Connection_Handle,
-                        0,
-						HCI_TX_PHYS_LE_1M_PREF,
-						HCI_TX_PHYS_LE_1M_PREF,
-                        0);
+                        0,                              // host has preference
+                        HCI_TX_PHYS_LE_CODED_PREF,      // TX: coded
+                        HCI_RX_PHYS_LE_CODED_PREF,      // RX: coded
+                        2);                             // PHY_options=2 -> prefer S=8
    if (ret != BLE_STATUS_SUCCESS) {
  	  SEGGER_RTT_printf(0, "hci_le_set_phy failed: 0x%02X\n", ret);
    }
@@ -962,7 +949,7 @@ void APP_BLE_Procedure_Gap_Peripheral(ProcGapPeripheralId_t ProcGapPeripheralId)
                                                      0,
                                                      HCI_PHY_LE_1M,
                                                      0,
-													 HCI_PHY_LE_1M,//HCI_PHY_LE_CODED,
+													 HCI_PHY_LE_CODED, /* Secondary advertising PHY (unused with legacy adv) */
                                                      0,
                                                      0);
       SEGGER_RTT_printf(0, "[AdvCfg] status=0x%02X\n", status);
@@ -1006,40 +993,7 @@ void APP_BLE_Procedure_Gap_Peripheral(ProcGapPeripheralId_t ProcGapPeripheralId)
 
 /* USER CODE BEGIN FD*/
 
-#if TRAINING_MODE_ENABLED
-/**
-  * @brief IMU data-ready EXTI callback (LSM6DSV16X INT1 -> PB9).
-  *        Runs in interrupt context: signal tasks only.
-  *        Training build only -- in production PB9 is analog and these never
-  *        fire, because the EXTI input is what blocks the DEEPSTOP floor.
-  */
-static inline void APP_BLE_ImuSampleReady(void)
-{
-	UTIL_SEQ_SetTask(1U << CFG_TASK_TILT_POLL_ID,    CFG_SEQ_PRIO_1);
-	UTIL_SEQ_SetTask(1U << CFG_TASK_RAW_IMU_SEND_ID, CFG_SEQ_PRIO_1);
-}
-
-void HAL_GPIO_EXTI_Callback(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
-{
-	if ((GPIOx != IMU_INT1_GPIO_Port) || (GPIO_Pin != IMU_INT1_Pin)) return;
-
-	APP_BLE_ImuSampleReady();
-}
-
-/**
-  * @brief DEEPSTOP wake path for the same DRDY edge.
-  *        In low-power mode the GPIO/EXTI block is unpowered, so a DRDY edge
-  *        does NOT reach GPIOB_IRQHandler. It arrives instead through
-  *        PWR_ExitOffMode() -> HAL_PWR_WKUP_IRQHandler() -> here.
-  *        Both entry points must schedule the same work.
-  */
-void HAL_PWR_WKUPx_Callback(uint32_t WakeupIOs)
-{
-	if ((WakeupIOs & PWR_WAKEUP_PB9) == 0U) return;
-
-	APP_BLE_ImuSampleReady();
-}
-#endif /* TRAINING_MODE_ENABLED */
+/* Sampling is virtual-timer driven; no IMU interrupt path. */
 
 static void APP_BLE_TiltPoll_Task(void)
 {
@@ -1048,12 +1002,8 @@ static void APP_BLE_TiltPoll_Task(void)
 
 	if (imu_poll() != 0)
 	{
-#if !TRAINING_MODE_ENABLED
-		/* Timer-driven: must re-arm here or sampling stops permanently.
-		   (Training is DRDY-driven, the next edge re-triggers this task.) */
-		HAL_RADIO_TIMER_StartVirtualTimer(&TiltPollTimerHandle,
-		                                  tilt_detector_get_poll_interval_ms());
-#endif
+		/* Drop this sample. The next DRDY edge re-triggers this task, so
+		   nothing needs re-arming */
 		return;
 	}
 
@@ -1068,28 +1018,33 @@ static void APP_BLE_TiltPoll_Task(void)
 		last_valid_tilt_deg = tilt_deg;
 	}
 
-	uint8_t gyro_was_off = (!TRAINING_MODE_ENABLED && tilt_detector_get_state() == TILT_STATE_NORMAL) ? 1U : 0U;
-
-	/* dt is the REAL DRDY period, not the requested interval -- the ODR ladder
-	   quantizes hard (NORMAL asks 1000 ms, gets 533 ms). */
 	TiltState_t state = tilt_detector_update(tilt_deg, gyro_mag,
-	                                         acceleration_magnitude_g,
-	                                         imu_get_period_ms());
+	                                         acceleration_magnitude_g);
 
 	float deviation = tilt_detector_get_deviation();
 	float velocity  = tilt_detector_get_rate_dph();
-	uint16_t dev_x100_buf = (uint16_t)(deviation * 100.0f + 0.5f);
-	uint16_t vel_x100_buf = (uint16_t)(velocity  * 100.0f + 0.5f);
-	(void)Landslide_Buffer_Sample(dev_x100_buf, vel_x100_buf, gyro_was_off);
 
-	/* LED = "calibration in progress", lit ONLY in CALIBRATING. It used to be
-	   switched on when calibration finished and never switched off, which left
-	   it burning mA for the whole deployed life of the node -- by far the
-	   largest current draw in NORMAL. Driven from the state every cycle
-	   (single BSRR store) so it is self-correcting and also covers a later
-	   re-calibration via tilt_detector_reset(). */
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin,
-	                  (state == TILT_STATE_CALIBRATING) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+	/* Buffer every sample into the raw-IMU ring; transmission is gated below at
+	   the per-state BROADCAST_* cadence, which is the power budget. */
+	{
+		uint16_t dev_x100_buf = (uint16_t)(deviation * 100.0f + 0.5f);
+		uint16_t vel_x100_buf = (uint16_t)(velocity  * 100.0f + 0.5f);
+		/* Zeroing gyro in NORMAL is a production power behaviour -- in training
+		   the gyro is what we came to record, so never blank it there. */
+		uint8_t  gyro_was_off = (!TRAINING_MODE_ENABLED &&
+		                         tilt_detector_get_state() == TILT_STATE_NORMAL) ? 1U : 0U;
+		int16_t  accel[3] = {0}, gyro[3] = {0};
+		imu_get_last_sample(accel, gyro);
+		(void)Landslide_Buffer_Sample(dev_x100_buf, vel_x100_buf, accel, gyro, gyro_was_off);
+
+		static uint32_t last_send_ms = 0;
+		uint32_t now_ms = (uint32_t)((HAL_RADIO_TIMER_GetCurrentSysTime() * 10) >> 12);
+		if ((now_ms - last_send_ms) >= APP_BLE_BroadcastIntervalMs())
+		{
+			last_send_ms = now_ms;
+			UTIL_SEQ_SetTask(1U << CFG_TASK_RAW_IMU_SEND_ID, CFG_SEQ_PRIO_1);
+		}
+	}
 
 	if(was_calibrating)
 	{
@@ -1147,7 +1102,9 @@ static void APP_BLE_TiltPoll_Task(void)
 
 		if (data_changed)
 		{
-			 uint8_t state_transitioned = (state != last_state) && (last_state != TILT_STATE_CALIBRATING);
+			 uint8_t state_transitioned = (state != last_state) &&
+			                              (last_state != TILT_STATE_CALIBRATING) &&
+			                              (state != TILT_STATE_CALIBRATING);
 
 			last_state      = state;
 			last_src_deg     = cur_src_deg;
@@ -1158,39 +1115,29 @@ static void APP_BLE_TiltPoll_Task(void)
 
 			if (state_transitioned)
 			{
-			    Landslide_Mark_Pending_As_Historical();
-
-				/* New: Backlog drains one Landslide_Send_Next_Pending() call per
-				   DRDY edge */
+				/* Mark the buffered pre-event window so the gateway can tell
+				   replayed history from live samples. */
+				Landslide_Mark_Pending_As_Historical();
 			}
 		}
 
-		static uint32_t last_broadcast = 0;
-		uint32_t now = HAL_GetTick();
+		static uint64_t last_broadcast_at = 0;
+		uint64_t now = HAL_RADIO_TIMER_GetCurrentSysTime();
 
 		uint32_t interval;
 		if (state == TILT_STATE_CRITICAL)      interval = BROADCAST_CRITICAL_MS;
 		else if (state == TILT_STATE_WARNING)  interval = BROADCAST_WARNING_MS;
 		else                                   interval = BROADCAST_NORMAL_MS;
 
-		if((now-last_broadcast)>=interval)
+		if (HAL_RADIO_TIMER_DiffSysTimeMs(now, last_broadcast_at) >= (int64_t)interval)
 		{
-			last_broadcast = now;
+			last_broadcast_at = now;
 			APP_BLE_AlarmAdvUpdate((uint8_t)state, (uint8_t)deviation);
 			SEGGER_RTT_printf(0, "[Broadcast] level=%d  dev=%d.%02d deg\n", (int)state, dev_int, dev_frac);
 		}
 	}
 
-	/* Cadence policy belongs to the detector; imu_set_rate_ms() applies the
-	   training-mode override itself, so no rate decisions are made here. */
-	uint32_t poll_ms = tilt_detector_get_poll_interval_ms();
-	(void)imu_set_rate_ms(poll_ms);
-
-#if !TRAINING_MODE_ENABLED
-	/* Production: this task is timer-driven, so re-arm at exactly the
-	   configured POLL_INTERVAL_* for the state we just entered. */
-	HAL_RADIO_TIMER_StartVirtualTimer(&TiltPollTimerHandle, poll_ms);
-#endif
+	(void)imu_set_rate(tilt_detector_get_rate());
 }
 
 void APP_BLE_AlarmAdvUpdate(uint8_t alarm, uint8_t src)

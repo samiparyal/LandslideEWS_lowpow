@@ -16,6 +16,6 @@
 ../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:99:6:PWR_EnterOffMode	4
 ../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:159:6:PWR_ExitOffMode	13
 ../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:231:6:PWR_EnterStopMode	2
-../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:293:6:PWR_ExitStopMode	5
-../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:337:6:PWR_EnterSleepMode	1
-../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:345:6:PWR_ExitSleepMode	1
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:292:6:PWR_ExitStopMode	5
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:336:6:PWR_EnterSleepMode	1
+../Projects/Common/BLE/Interfaces/stm32_lpm_if.c:344:6:PWR_ExitSleepMode	1

@@ -1,0 +1,43 @@
+#ifndef INC_H_
+#define INC_H_
+
+#include <stdint.h>
+#include "stm32wb0x_hal.h"
+
+#define TRAINING_MODE_RATE_MS  10U //100hz
+#define TRAINING_MODE_ENABLED  0   /* set to 1 during debugging to collect training data */
+
+/* 1 = keep gyro running during training, 0 = accel only  */
+#define TRAINING_MODE_GYRO_ON  0
+
+/* Rate programmed by imu_init(). 200 ms -> 7.5 Hz ODR, matching the old
+   hard-coded LSM6DSV16X_ODR_AT_7Hz5. The app re-rates per state afterwards. */
+#define IMU_DEFAULT_RATE_MS    200U
+
+int32_t imu_init(I2C_HandleTypeDef *hi2c);
+int32_t imu_enable_wakeup_int1(uint8_t threshold, uint8_t duration);
+int32_t imu_read_wakeup_src(uint8_t *src);
+
+//
+void imu_gyro_on(void);
+void imu_gyro_off(void);
+
+//
+int32_t imu_get_tilt_and_magnitude(float *tilt_deg, float *mag_g);
+int32_t imu_get_gyro_dps_magnitude(float *magnitude);
+
+//
+int32_t imu_set_rate_ms(uint32_t poll_interval_ms);
+
+//
+float imu_get_period_ms(void);
+
+//
+void imu_get_last_sample(int16_t accel[3], int16_t gyro[3]);
+
+//
+int32_t imu_poll(void);
+
+#endif
+
+

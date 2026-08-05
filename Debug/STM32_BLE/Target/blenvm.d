@@ -48,9 +48,6 @@ STM32_BLE/Target/blenvm.o: ../STM32_BLE/Target/blenvm.c \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_stack_user_cfg.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_gatt.h \
- ../Core/Inc/app_conf.h ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Utilities/misc/stm32_mem.h ../Core/Inc/app_common.h \
  ../Core/Inc/app_conf.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_events.h \
@@ -107,12 +104,6 @@ STM32_BLE/Target/blenvm.o: ../STM32_BLE/Target/blenvm.c \
 ../Middlewares/ST/STM32_BLE/stack/include/ble_stack_user_cfg.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_gatt.h:
-../Core/Inc/app_conf.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../Core/Inc/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Utilities/misc/stm32_mem.h:
-../Core/Inc/app_common.h:
 ../Core/Inc/app_conf.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_events.h:

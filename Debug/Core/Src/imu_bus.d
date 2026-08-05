@@ -39,9 +39,7 @@ Core/Src/imu_bus.o: ../Core/Src/imu_bus.c ../Core/Inc/imu_bus.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
  ../Core/Inc/i2c.h ../Core/Inc/main.h ../Core/Inc/app_entry.h \
- ../Core/Inc/app_conf.h ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Utilities/misc/stm32_mem.h ../Core/Inc/app_common.h \
+ ../Core/Inc/app_conf.h ../Core/Inc/app_common.h \
  ../System/Config/Debug_GPIO/app_debug.h \
  ../Projects/Common/BLE/Modules/RTDebug/RTDebug.h \
  ../System/Config/Debug_GPIO/debug_config.h ../Core/Inc/app_conf.h \
@@ -91,10 +89,6 @@ Core/Src/imu_bus.o: ../Core/Src/imu_bus.c ../Core/Inc/imu_bus.h \
 ../Core/Inc/main.h:
 ../Core/Inc/app_entry.h:
 ../Core/Inc/app_conf.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../Core/Inc/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Utilities/misc/stm32_mem.h:
 ../Core/Inc/app_common.h:
 ../System/Config/Debug_GPIO/app_debug.h:
 ../Projects/Common/BLE/Modules/RTDebug/RTDebug.h:

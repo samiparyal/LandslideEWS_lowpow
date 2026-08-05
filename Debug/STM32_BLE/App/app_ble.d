@@ -38,10 +38,7 @@ STM32_BLE/App/app_ble.o: ../STM32_BLE/App/app_ble.c ../Core/Inc/main.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
- ../Core/Inc/app_entry.h ../Core/Inc/app_conf.h \
- ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Utilities/misc/stm32_mem.h ../Core/Inc/app_common.h \
+ ../Core/Inc/app_entry.h ../Core/Inc/app_conf.h ../Core/Inc/app_common.h \
  ../System/Config/Debug_GPIO/app_debug.h \
  ../Projects/Common/BLE/Modules/RTDebug/RTDebug.h \
  ../System/Config/Debug_GPIO/debug_config.h ../Core/Inc/app_conf.h \
@@ -70,7 +67,8 @@ STM32_BLE/App/app_ble.o: ../STM32_BLE/App/app_ble.c ../Core/Inc/main.h \
  ../Projects/Common/BLE/Modules/PKAMGR/Inc/pka_manager.h \
  ../Utilities/sequencer/stm32_seq.h ../Core/Inc/landslide_service.h \
  ../Core/Inc/imu.h ../Core/Inc/SEGGER_RTT.h ../Core/Inc/SEGGER_RTT_Conf.h \
- ../Utilities/lpm/tiny_lpm/stm32_lpm.h ../Core/Inc/tilt_detector.h
+ ../Utilities/lpm/tiny_lpm/stm32_lpm.h ../Core/Inc/tilt_detector.h \
+ ../Core/Inc/imu.h
 ../Core/Inc/main.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal.h:
 ../Core/Inc/stm32wb0x_hal_conf.h:
@@ -113,10 +111,6 @@ STM32_BLE/App/app_ble.o: ../STM32_BLE/App/app_ble.c ../Core/Inc/main.h \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h:
 ../Core/Inc/app_entry.h:
 ../Core/Inc/app_conf.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../Core/Inc/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Utilities/misc/stm32_mem.h:
 ../Core/Inc/app_common.h:
 ../System/Config/Debug_GPIO/app_debug.h:
 ../Projects/Common/BLE/Modules/RTDebug/RTDebug.h:
@@ -153,3 +147,4 @@ STM32_BLE/App/app_ble.o: ../STM32_BLE/App/app_ble.c ../Core/Inc/main.h \
 ../Core/Inc/SEGGER_RTT_Conf.h:
 ../Utilities/lpm/tiny_lpm/stm32_lpm.h:
 ../Core/Inc/tilt_detector.h:
+../Core/Inc/imu.h:

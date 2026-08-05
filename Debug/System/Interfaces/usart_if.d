@@ -39,16 +39,15 @@ System/Interfaces/usart_if.o: ../System/Interfaces/usart_if.c \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
- ../Core/Inc/app_entry.h ../Core/Inc/app_conf.h \
- ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Utilities/misc/stm32_mem.h ../Core/Inc/app_common.h \
+ ../Core/Inc/app_entry.h ../Core/Inc/app_conf.h ../Core/Inc/app_common.h \
  ../System/Config/Debug_GPIO/app_debug.h \
  ../Projects/Common/BLE/Modules/RTDebug/RTDebug.h \
  ../System/Config/Debug_GPIO/debug_config.h ../Core/Inc/app_conf.h \
  ../Projects/Common/BLE/Modules/RTDebug/debug_signals.h \
  ../Projects/Common/BLE/Modules/compiler.h \
- ../System/Interfaces/usart_if.h
+ ../Utilities/trace/adv_trace/stm32_adv_trace.h \
+ ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
+ ../Utilities/misc/stm32_mem.h ../System/Interfaces/usart_if.h
 ../Core/Inc/usart.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal.h:
@@ -92,10 +91,6 @@ System/Interfaces/usart_if.o: ../System/Interfaces/usart_if.c \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h:
 ../Core/Inc/app_entry.h:
 ../Core/Inc/app_conf.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../Core/Inc/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Utilities/misc/stm32_mem.h:
 ../Core/Inc/app_common.h:
 ../System/Config/Debug_GPIO/app_debug.h:
 ../Projects/Common/BLE/Modules/RTDebug/RTDebug.h:
@@ -103,4 +98,8 @@ System/Interfaces/usart_if.o: ../System/Interfaces/usart_if.c \
 ../Core/Inc/app_conf.h:
 ../Projects/Common/BLE/Modules/RTDebug/debug_signals.h:
 ../Projects/Common/BLE/Modules/compiler.h:
+../Utilities/trace/adv_trace/stm32_adv_trace.h:
+../Core/Inc/utilities_conf.h:
+../Drivers/CMSIS/Include/cmsis_compiler.h:
+../Utilities/misc/stm32_mem.h:
 ../System/Interfaces/usart_if.h:

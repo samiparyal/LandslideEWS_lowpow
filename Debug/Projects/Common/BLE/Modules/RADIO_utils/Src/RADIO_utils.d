@@ -44,9 +44,6 @@ Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.o: \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_pwr.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_gpio.h \
  ../Middlewares/ST/STM32_BLE/ble.h ../STM32_BLE/App/ble_conf.h \
- ../Core/Inc/app_conf.h ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Utilities/misc/stm32_mem.h ../Core/Inc/app_common.h \
  ../Core/Inc/app_conf.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_stack.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_status.h \
@@ -104,12 +101,6 @@ Projects/Common/BLE/Modules/RADIO_utils/Src/RADIO_utils.o: \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_ll_gpio.h:
 ../Middlewares/ST/STM32_BLE/ble.h:
 ../STM32_BLE/App/ble_conf.h:
-../Core/Inc/app_conf.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../Core/Inc/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Utilities/misc/stm32_mem.h:
-../Core/Inc/app_common.h:
 ../Core/Inc/app_conf.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_stack.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_status.h:

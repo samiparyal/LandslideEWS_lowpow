@@ -40,8 +40,7 @@ Utilities/misc/stm32_mem.o: ../Utilities/misc/stm32_mem.c \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rcc_ex.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
- ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
- ../Utilities/trace/adv_trace/stm32_adv_trace.h
+ ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h
 ../Utilities/misc/stm32_mem.h:
 ../Core/Inc/utilities_conf.h:
 ../Drivers/CMSIS/Include/cmsis_compiler.h:
@@ -87,4 +86,3 @@ Utilities/misc/stm32_mem.o: ../Utilities/misc/stm32_mem.c \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:

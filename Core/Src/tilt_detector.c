@@ -23,7 +23,8 @@ static float g_deviation = 0.0f;
 
 static uint8_t g_gravity_deviation_bypass_cnt = 0;   /* existing: WARNING -> CRITICAL bypass */
 static uint8_t g_gravity_deviation_normal_cnt = 0;   /* new: NORMAL -> WARNING debounce */
-static float    g_gravity_deviation_latch_ms  = 0.0f;
+
+static uint64_t g_gravity_reason_latch_until = 0U;   /* holds TRIGGER_ACCELERATION_GRAVITY_DEVIATION for 2s after a gravity-caused escalation, not after every raw sample */
 
 /*---Slow tilt-rate channel (deg/hour)---
  * Ring of RATE_SNAPS+1 averages; newest vs oldest spans 1 h.
@@ -32,7 +33,8 @@ static float    g_gravity_deviation_latch_ms  = 0.0f;
 //accumulator grp - builds one snapshot
 static float    g_snap_sum          = 0.0f; //running sum of every dev readings since last snapshot closed
 static uint32_t g_snap_count        = 0; //readings/count in that sum
-static float    g_snap_elapsed_ms   = 0.0f; //real time accumulated via dt_ms each poll. when reached snap_period_ms, snapshot closes
+
+static uint64_t g_snap_closes_at  = 0U;
 
 //ring buf grp - stores snapshot history
 #define SNAP_SLOTS (RATE_SNAPS + 1U) //+1 to measure change over 12 intervals (1 hr)
@@ -53,9 +55,6 @@ static void set_state(TiltState_t new_state)
 	if (new_state == TILT_STATE_NORMAL)
 	{
 		(void)imu_gyro_off();
-		g_gravity_deviation_latch_ms = 0.0f;
-		g_trigger_reason &= (uint8_t)~TRIGGER_ACCELERATION_GRAVITY_DEVIATION;
-
 	}
 	else if (g_state == TILT_STATE_NORMAL)
 	{
@@ -87,10 +86,12 @@ void tilt_detector_reset(void)
 	for (uint8_t i = 0; i < SNAP_SLOTS; i++) g_snaps[i] = 0.0f;
 	g_snap_idx = 0;
 	g_snaps_filled    = 0;
-	g_snap_sum        = 0.0f;
-	g_snap_count      = 0;
-	g_snap_elapsed_ms = 0.0f;
-	g_rate_dph        = 0.0f;
+	g_snap_sum          = 0.0f;
+	g_snap_count        = 0;
+	g_snap_closes_at  = 0U;   /* re-armed on the first post-calibration sample */
+	g_rate_dph          = 0.0f;
+
+	g_gravity_reason_latch_until = 0U;
 
 	g_gravity_deviation_bypass_cnt = 0;
 
@@ -122,8 +123,10 @@ static float compute_regression_rate_dph(void)
     return fabsf(slope_per_slot * slots_per_hour);
 }
 
-TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float acceleration_magnitude_g, float dt_ms)
+TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float acceleration_magnitude_g)
 {
+	uint64_t now = HAL_RADIO_TIMER_GetCurrentSysTime();
+
 	//
 	if(g_state == TILT_STATE_CALIBRATING)
 	{
@@ -164,9 +167,14 @@ TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float accelerat
 	/* ---- slow tilt-rate channel ---- */
 		g_snap_sum += g_deviation;
 		g_snap_count++;
-		g_snap_elapsed_ms += dt_ms;
 
-		if (g_snap_elapsed_ms >= (float)SNAP_PERIOD_MS)
+		/* First sample after calibration arms the grid. */
+		if (g_snap_closes_at == 0U)
+		{
+			g_snap_closes_at = HAL_RADIO_TIMER_AddSysTimeMs(now, (int32_t)SNAP_PERIOD_MS);
+		}
+
+		if (now >= g_snap_closes_at)
 		{
 			float avg = g_snap_sum / (float)g_snap_count;
 
@@ -203,9 +211,15 @@ TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float accelerat
 			 * but comparing two 100-sample averages taken an hour apart, it's a clean, averaging kills the noise; making tiny slope visible
 			 */
 
-			g_snap_sum        = 0.0f;
-			g_snap_count      = 0;
-			g_snap_elapsed_ms = 0.0f;
+			g_snap_sum   = 0.0f;
+			g_snap_count = 0;
+
+
+			g_snap_closes_at = HAL_RADIO_TIMER_AddSysTimeMs(g_snap_closes_at, (int32_t)SNAP_PERIOD_MS);
+			if (g_snap_closes_at <= now)
+			{
+				g_snap_closes_at = HAL_RADIO_TIMER_AddSysTimeMs(now, (int32_t)SNAP_PERIOD_MS);
+			}
 		}
 
 
@@ -231,22 +245,6 @@ TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float accelerat
 	uint8_t gravity_deviation = (fabsf(acceleration_magnitude_g - g_gravity_baseline_g)
 	                              >= (ACCELERATION_GRAVITY_DEVIATION_K_SIGMA * g_gravity_deviation_std_g)) ? 1U : 0U;
 
-	if (gravity_deviation)
-	{
-		g_gravity_deviation_latch_ms = ACCELERATION_GRAVITY_DEVIATION_LATCH_MS;
-
-//		SEGGER_RTT_printf(0, "[Grav] mag=%d mg  base=%d mg  thresh=%d mg  dev=%d\n",
-//					                      (int)(acceleration_magnitude_g*1000.0f),
-//					                      (int)(g_gravity_baseline_g*1000.0f),
-//					                      (int)(ACCELERATION_GRAVITY_DEVIATION_K_SIGMA * g_gravity_deviation_std_g * 1000.0f),
-//					                      gravity_deviation);
-	}
-	else
-	{
-		g_gravity_deviation_latch_ms -= dt_ms;
-		if (g_gravity_deviation_latch_ms < 0.0f) g_gravity_deviation_latch_ms = 0.0f;
-	}
-
 
 	uint8_t in_warning  = (dev_warn || rate_warn ) ? 1U : 0U;
 	uint8_t in_critical = (dev_crit || rate_crit) ? 1U : 0U;
@@ -258,7 +256,7 @@ TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float accelerat
 	uint8_t reason = TRIGGER_NONE;
 	if (dev_warn  || dev_crit)  reason |= TRIGGER_ANGLE;
 	if (rate_warn || rate_crit) reason |= TRIGGER_RATE;
-	if (gravity_deviation || g_gravity_deviation_latch_ms > 0.0f || g_state != TILT_STATE_NORMAL) reason |= TRIGGER_ACCELERATION_GRAVITY_DEVIATION;
+	if (now < g_gravity_reason_latch_until) reason |= TRIGGER_ACCELERATION_GRAVITY_DEVIATION;
 
 
 
@@ -279,10 +277,11 @@ TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float accelerat
 			 if (gravity_deviation)
 				{
 					g_gravity_deviation_normal_cnt++;
-					if (g_gravity_deviation_normal_cnt >= 2U)   // 2 consecutive polls, debounce
+					if (g_gravity_deviation_normal_cnt >= 2U)   // 3 consecutive polls, debounce
 					{
 						g_gravity_deviation_normal_cnt = 0;
 				        g_trigger_reason |= TRIGGER_ACCELERATION_GRAVITY_DEVIATION;
+				        g_gravity_reason_latch_until = HAL_RADIO_TIMER_AddSysTimeMs(now, (int32_t)ACCELERATION_GRAVITY_DEVIATION_LATCH_MS);
 						set_state(TILT_STATE_WARNING);
 						return g_state;
 					}
@@ -320,10 +319,11 @@ TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float accelerat
 			if (gravity_deviation)
 			{
 				g_gravity_deviation_bypass_cnt++;
-				if (g_gravity_deviation_bypass_cnt >= 2U)   // 2 consecutive polls while already in WARNING
+				if (g_gravity_deviation_bypass_cnt >= 3U)   // 3 consecutive polls while already in WARNING
 				{
 					g_gravity_deviation_bypass_cnt = 0;
 			        g_trigger_reason |= TRIGGER_ACCELERATION_GRAVITY_DEVIATION;
+			        g_gravity_reason_latch_until = HAL_RADIO_TIMER_AddSysTimeMs(now, (int32_t)ACCELERATION_GRAVITY_DEVIATION_LATCH_MS);
 					set_state(TILT_STATE_CRITICAL);
 					return g_state;
 				}
@@ -384,14 +384,14 @@ TiltState_t tilt_detector_update(float tilt_deg, float gyro_mag, float accelerat
 
 TiltState_t tilt_detector_get_state(void) {return g_state;}
 
-uint32_t tilt_detector_get_poll_interval_ms(void)
+imu_rate_t tilt_detector_get_rate(void)
 {
 	switch (g_state)
 	{
-		case TILT_STATE_CALIBRATING: return POLL_INTERVAL_CALIB_MS;
-		case TILT_STATE_CRITICAL:    return POLL_INTERVAL_CRITICAL_MS;
-		case TILT_STATE_WARNING:     return POLL_INTERVAL_WARNING_MS;
-		default:                     return POLL_INTERVAL_NORMAL_MS;
+		case TILT_STATE_CALIBRATING: return IMU_RATE_7HZ5;
+		case TILT_STATE_CRITICAL:    return IMU_RATE_30HZ;
+		case TILT_STATE_WARNING:     return IMU_RATE_15HZ;
+		default:                     return IMU_RATE_1HZ875;
 	}
 }
 

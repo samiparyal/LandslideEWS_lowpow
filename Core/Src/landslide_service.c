@@ -36,41 +36,40 @@ static uint8_t tiltDataNotifyEnabled    = 0U;
 static uint8_t rawImuNotifyEnabled = 0U;
 
 //characteristic values
-static uint8_t alertStatusValue[2] = {0};
-static uint8_t tiltDataValue[4] = {0};
+static uint8_t  alertStatusValue[2]  = {0};  /* [u8 state] + [u8 trigger reason bitmask] */
+static uint8_t  tiltDataValue[4]  = {0};  // [u16 dev×100 LE] + [u16 vel×100 LE]
 
 RawImuSample_t rawImuValue = {0};
 
 static RawImuSample_t s_imu_buffer[IMU_BUFFER_LEN] = {0};
-static uint8_t s_imu_buffer_idx = 0;
-static uint8_t s_imu_send_idx   = 0;
-uint8_t s_imu_pending = 0;
 
+static uint8_t s_imu_buffer_idx = 0;   // write curseor/producer
+static uint8_t s_imu_send_idx   = 0;   // read cursor / consumer -- always trails the write cursor
+uint8_t s_imu_pending    = 0;   // count of samples not yet sent
 
 //// GATT server definitions
 static ble_gatt_val_buffer_def_t alertStatusValueBuffer =
 {
-    .op_flags = BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG,
-    .val_len = 2U,
-    .buffer_len = 2U,
-    .buffer_p = alertStatusValue
+    .op_flags = BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG,  //enable attribute modified" events for cccd writes
+	.val_len = 2U,
+	.buffer_len = 2U,
+	.buffer_p = alertStatusValue
 };
-
 
 static ble_gatt_val_buffer_def_t tiltDataValueBuffer =
 {
     .op_flags = BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG,
-    .val_len = 4U,
-    .buffer_len = 4U,
+	.val_len = 4U,
+	.buffer_len = 4U,
     .buffer_p = tiltDataValue
 };
 
 static ble_gatt_val_buffer_def_t rawImuValueBuffer =
 {
-		.op_flags = BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG,
-		.val_len = sizeof(RawImuSample_t),
-		.buffer_len = sizeof(RawImuSample_t),
-		.buffer_p = (uint8_t*)&rawImuValue
+	.op_flags = BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG,
+	.val_len = sizeof(RawImuSample_t),
+	.buffer_len = sizeof(RawImuSample_t),
+	.buffer_p = (uint8_t*)&rawImuValue
 };
 
 static ble_gatt_chr_def_t landslideCharacteristics[3];
@@ -106,17 +105,18 @@ static inline uint16_t getRawImuCccdHandle(void)
 
 // CCCD declarations
 BLE_GATT_SRV_CCCD_DECLARE(alertStatusCccd,
-						  CFG_BLE_NUM_RADIO_TASKS, // num_of_links (1 connection)
+                          CFG_BLE_NUM_RADIO_TASKS, /* must match NumOfRadioTasks:
+                             the stack indexes this buffer by connection index */
                           BLE_GATT_SRV_CCCD_PERM_DEFAULT,
                           BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG);
 
 BLE_GATT_SRV_CCCD_DECLARE(tiltDataCccd,
-						  CFG_BLE_NUM_RADIO_TASKS,
+                          CFG_BLE_NUM_RADIO_TASKS,
                           BLE_GATT_SRV_CCCD_PERM_DEFAULT,
                           BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG);
 
 BLE_GATT_SRV_CCCD_DECLARE(rawImuSampleCccd,
-						  CFG_BLE_NUM_RADIO_TASKS,
+                          CFG_BLE_NUM_RADIO_TASKS,
 						  BLE_GATT_SRV_CCCD_PERM_DEFAULT,
 						  BLE_GATT_SRV_OP_MODIFIED_EVT_ENABLE_FLAG);
 
@@ -136,10 +136,6 @@ tBleStatus Landslide_Service_Init(void)
 	memset(alertStatusValue, 0, sizeof(alertStatusValue));
 	memset(tiltDataValue, 0, sizeof(tiltDataValue));
 	memset(&rawImuValue, 0, sizeof(rawImuValue));
-	memset(s_imu_buffer, 0, sizeof(s_imu_buffer));
-	s_imu_buffer_idx = 0U;
-	s_imu_send_idx   = 0U;
-	s_imu_pending    = 0U;
 
 	memset(&landslideServiceDefinition, 0, sizeof(landslideServiceDefinition));
 	memset(landslideCharacteristics, 0, sizeof(landslideCharacteristics));
@@ -253,7 +249,7 @@ void Landslide_Service_ConnectionComplete(uint16_t connHandle)
 	tiltDataNotifyEnabled    = 0U;
 	rawImuNotifyEnabled = 0U;
 
-
+	/* starting each session clean  */
 	s_imu_pending  = 0U;
 	s_imu_send_idx = s_imu_buffer_idx;
 }
@@ -345,10 +341,10 @@ tBleStatus Landslide_Update_Alert_Status(uint8_t alert_level, uint8_t trigger_re
     return BLE_STATUS_SUCCESS;
 }
 
-tBleStatus Landslide_Update_Tilt_Data(uint16_t deviation_x100, uint16_t velocity_x100)
+tBleStatus Landslide_Update_Tilt_Data(uint16_t deviation_deg_x100, uint16_t velocity_x100)
 {
-	tiltDataValue[0] = (uint8_t)(deviation_x100 & 0xFFU);
-	tiltDataValue[1] = (uint8_t)(deviation_x100 >> 8);
+	tiltDataValue[0] = (uint8_t)(deviation_deg_x100 & 0xFFU);
+	tiltDataValue[1] = (uint8_t)(deviation_deg_x100 >> 8);
 	tiltDataValue[2] = (uint8_t)(velocity_x100 & 0xFFU);
 	tiltDataValue[3] = (uint8_t)(velocity_x100 >> 8);
 
@@ -357,29 +353,59 @@ tBleStatus Landslide_Update_Tilt_Data(uint16_t deviation_x100, uint16_t velocity
         return aci_gatt_srv_notify(connectionHandle, BLE_GATT_UNENHANCED_ATT_L2CAP_CID,
                                    getTiltDataValueHandle(),
                                    BLE_GATT_SRV_NOTIFY_FLAG_NOTIFICATION,
-                                   4U, tiltDataValue);
+								   4U, tiltDataValue);
     }
     return BLE_STATUS_SUCCESS;
 }
 
-tBleStatus Landslide_Buffer_Sample(uint16_t deviation_x100, uint16_t velocity_x100, uint8_t gyro_was_off)
+//tBleStatus Landslide_Update_Raw_IMU_Sample(uint16_t sample_idx, uint8_t gyro_was_off)
+//{
+//
+//
+//	int16_t accel[3] = {0};
+//	int16_t gyro[3]  = {0};
+//
+//	imu_read_accel(accel);
+//	imu_read_gyro(gyro);
+//
+//	if (tilt_detector_get_state() == TILT_STATE_NORMAL)
+//	{
+//		gyro[0] = 0; gyro[1] = 0; gyro[2] = 0;   /* gyro off during normal: report 0, not stale */
+//	}
+//
+//	rawImuValue.ax = accel[0];
+//	rawImuValue.ay = accel[1];
+//	rawImuValue.az = accel[2];
+//	rawImuValue.gx = gyro[0];
+//	rawImuValue.gy = gyro[1];
+//	rawImuValue.gz = gyro[2];
+//	rawImuValue.sample_idx = sample_idx;
+//
+////	SEGGER_RTT_printf(0, ">>> Sending IMU notification: ax=%d ay=%d az=%d gx=%d gy=%d gz=%d idx=%d\r\n",
+////			accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2], sample_idx);
+//
+//	//send notif if connected
+//	if((connectionHandle != CONNECTION_HANDLE_INVALID) && (rawImuNotifyEnabled != 0))
+//	{
+//		return aci_gatt_srv_notify(connectionHandle, BLE_GATT_UNENHANCED_ATT_L2CAP_CID, getRawImuValueHandle(), BLE_GATT_SRV_NOTIFY_FLAG_NOTIFICATION, sizeof(RawImuSample_t), (uint8_t*)&rawImuValue);
+//	}
+//
+//	return BLE_STATUS_SUCCESS;
+//
+//}
+//
+tBleStatus Landslide_Buffer_Sample(uint16_t deviation_x100, uint16_t velocity_x100,
+                                    const int16_t accel[3], const int16_t gyro[3],
+                                    uint8_t gyro_was_off)
 {
-	int16_t accel[3] = {0};
-	int16_t gyro[3]  = {0};
-
-	imu_get_last_sample(accel, gyro);
-
-	if (gyro_was_off)
-	{
-	    gyro[0] = 0; gyro[1] = 0; gyro[2] = 0;
-	}
-
 	RawImuSample_t *slot = &s_imu_buffer[s_imu_buffer_idx];
 	slot->ax = accel[0]; slot->ay = accel[1]; slot->az = accel[2];
-	slot->gx = gyro[0];  slot->gy = gyro[1];  slot->gz = gyro[2];
+	slot->gx = gyro_was_off ? 0 : gyro[0];
+	slot->gy = gyro_was_off ? 0 : gyro[1];
+	slot->gz = gyro_was_off ? 0 : gyro[2];
 	slot->dev_x100 = deviation_x100;
 	slot->vel_x100 = velocity_x100;
-	slot->timestamp_ms = (uint32_t)((HAL_RADIO_TIMER_GetCurrentSysTime() * 10) >> 12);
+	slot->timestamp_ms = (uint64_t)((HAL_RADIO_TIMER_GetCurrentSysTime() * 10) >> 12);
 	slot->is_hist_burst = 0U;
 
 	s_imu_buffer_idx = (uint8_t)((s_imu_buffer_idx + 1U) % IMU_BUFFER_LEN);
@@ -395,33 +421,46 @@ tBleStatus Landslide_Buffer_Sample(uint16_t deviation_x100, uint16_t velocity_x1
 
 	return BLE_STATUS_SUCCESS;
 }
+//
+//tBleStatus Landslide_Send_Buffered_Sample(uint8_t idx)
+//{
+//	if ((connectionHandle == CONNECTION_HANDLE_INVALID) || (rawImuNotifyEnabled == 0))
+//	{
+//		return BLE_STATUS_SUCCESS;
+//	}
+//	return aci_gatt_srv_notify(connectionHandle, BLE_GATT_UNENHANCED_ATT_L2CAP_CID,
+//	                            getRawImuValueHandle(), BLE_GATT_SRV_NOTIFY_FLAG_NOTIFICATION,
+//	                            sizeof(RawImuSample_t), (uint8_t*)&s_imu_buffer[idx]);
+//}
+//
+///* Index of the oldest sample within the last `count` captured, oldest-first */
+//uint8_t Landslide_Get_Buffer_Oldest_Index(uint8_t count)
+//{
+//	if (count > IMU_BUFFER_LEN) count = IMU_BUFFER_LEN;
+//	int16_t start = (int16_t)s_imu_buffer_idx - (int16_t)count;
+//	while (start < 0) start += IMU_BUFFER_LEN;
+//	return (uint8_t)start;
+//}
+
 
 tBleStatus Landslide_Send_Next_Pending(void)
 {
 	if (s_imu_pending == 0U) return BLE_STATUS_SUCCESS;
 	if ((connectionHandle == CONNECTION_HANDLE_INVALID) || (rawImuNotifyEnabled == 0)) return BLE_STATUS_SUCCESS;
 
-	while (s_imu_pending > 0U)
+	rawImuValue = s_imu_buffer[s_imu_send_idx]; //keeping this for read characteristics :: landslideCharacteristics[2].val_buffer_p = &rawImuValueBuffer;
+
+	tBleStatus status = aci_gatt_srv_notify(connectionHandle, BLE_GATT_UNENHANCED_ATT_L2CAP_CID,
+	                            getRawImuValueHandle(), BLE_GATT_SRV_NOTIFY_FLAG_NOTIFICATION,
+	                            sizeof(RawImuSample_t), (uint8_t*)&s_imu_buffer[s_imu_send_idx]);
+	if (status == BLE_STATUS_SUCCESS)
 	{
-		/* No copy into rawImuValue: the notify below sends the ring slot
-		   directly. rawImuValue only backs GATT *read* requests on this
-		   characteristic, and the gateway subscribes rather than reads. */
-		tBleStatus status = aci_gatt_srv_notify(connectionHandle, BLE_GATT_UNENHANCED_ATT_L2CAP_CID,
-		                            getRawImuValueHandle(), BLE_GATT_SRV_NOTIFY_FLAG_NOTIFICATION,
-		                            sizeof(RawImuSample_t), (uint8_t*)&s_imu_buffer[s_imu_send_idx]);
-		if (status == BLE_STATUS_SUCCESS)
-		{
-			s_imu_send_idx = (uint8_t)((s_imu_send_idx + 1U) % IMU_BUFFER_LEN);
-			s_imu_pending--;
-		}
-		else
-		{
-		    /* buffer pool full -- stop, retry next cycle */
-		    return status;
-		}
+		s_imu_send_idx = (uint8_t)((s_imu_send_idx + 1U) % IMU_BUFFER_LEN);
+		s_imu_pending--;
 	}
-	return BLE_STATUS_SUCCESS;
+	return status;
 }
+
 
 void Landslide_Mark_Pending_As_Historical(void)
 {
@@ -431,6 +470,15 @@ void Landslide_Mark_Pending_As_Historical(void)
         s_imu_buffer[idx].is_hist_burst = 1U;
         idx = (uint8_t)((idx + 1U) % IMU_BUFFER_LEN);
     }
+}
+
+/* Backlog is always at the head of the FIFO (oldest-first) and live samples
+   always append after it with is_hist_burst=0, so checking the head is enough
+   to know whether we're still draining a pre-event window. */
+uint8_t Landslide_Historical_Pending(void)
+{
+    if (s_imu_pending == 0U) return 0U;
+    return s_imu_buffer[s_imu_send_idx].is_hist_burst;
 }
 
 

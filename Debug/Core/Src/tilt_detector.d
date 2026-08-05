@@ -1,6 +1,5 @@
 Core/Src/tilt_detector.o: ../Core/Src/tilt_detector.c \
- ../Core/Inc/tilt_detector.h ../Core/Inc/SEGGER_RTT.h \
- ../Core/Inc/SEGGER_RTT_Conf.h ../Core/Inc/imu.h \
+ ../Core/Inc/tilt_detector.h ../Core/Inc/imu.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal.h \
  ../Core/Inc/stm32wb0x_hal_conf.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_dma.h \
@@ -39,10 +38,9 @@ Core/Src/tilt_detector.o: ../Core/Src/tilt_detector.c \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rcc_ex.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
- ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h
+ ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
+ ../Core/Inc/SEGGER_RTT.h ../Core/Inc/SEGGER_RTT_Conf.h ../Core/Inc/imu.h
 ../Core/Inc/tilt_detector.h:
-../Core/Inc/SEGGER_RTT.h:
-../Core/Inc/SEGGER_RTT_Conf.h:
 ../Core/Inc/imu.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal.h:
 ../Core/Inc/stm32wb0x_hal_conf.h:
@@ -83,3 +81,6 @@ Core/Src/tilt_detector.o: ../Core/Src/tilt_detector.c \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h:
+../Core/Inc/SEGGER_RTT.h:
+../Core/Inc/SEGGER_RTT_Conf.h:
+../Core/Inc/imu.h:

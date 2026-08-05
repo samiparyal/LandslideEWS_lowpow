@@ -46,10 +46,6 @@ Projects/Common/BLE/Modules/Profiles/Src/gatt_profile.o: \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h \
  ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h \
- ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Utilities/misc/stm32_mem.h ../Core/Inc/app_common.h \
- ../Core/Inc/app_conf.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_stack.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_stack_user_cfg.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h \
@@ -106,12 +102,6 @@ Projects/Common/BLE/Modules/Profiles/Src/gatt_profile.o: \
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_rng.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart.h:
 ../Drivers/STM32WB0x_HAL_Driver/Inc/stm32wb0x_hal_uart_ex.h:
-../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../Core/Inc/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-../Utilities/misc/stm32_mem.h:
-../Core/Inc/app_common.h:
-../Core/Inc/app_conf.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_stack.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_stack_user_cfg.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h:
