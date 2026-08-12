@@ -37,7 +37,7 @@ int32_t imu_init(I2C_HandleTypeDef *hi2c)
 
 	 //xl config
 	 (void)lsm6dsv16x_xl_full_scale_set(&ctx, LSM6DSV16X_2g);
-	 (void)lsm6dsv16x_xl_mode_set(&ctx, LSM6DSV16X_XL_LOW_POWER_2_AVG_MD);
+	 (void)lsm6dsv16x_xl_mode_set(&ctx, LSM6DSV16X_XL_HIGH_ACCURACY_ODR_MD);
 	 (void)imu_set_rate(IMU_DEFAULT_RATE);
 
 	 //gyro config
@@ -247,4 +247,20 @@ static void imu_apply_training_mode(void)
 #endif
 		(void)imu_set_rate(TRAINING_MODE_RATE);
 	}
+}
+
+
+float imu_rate_period_ms(imu_rate_t rate)
+{
+    switch (rate)
+    {
+        case IMU_RATE_1HZ875: return 533.333f;
+        case IMU_RATE_7HZ5:   return 133.333f;
+        case IMU_RATE_15HZ:   return 66.667f;
+        case IMU_RATE_30HZ:   return 33.333f;
+        case IMU_RATE_60HZ:   return 16.667f;
+        case IMU_RATE_120HZ:  return 8.333f;
+        case IMU_RATE_240HZ:  return 4.167f;
+        default:              return 533.333f;
+    }
 }

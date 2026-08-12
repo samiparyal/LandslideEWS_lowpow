@@ -1,5 +1,4 @@
 ../Core/Src/app_entry.c:84:10:MX_APPE_Init	2
-../Core/Src/app_entry.c:134:24:App_PowerSaveLevel_Check	1
 ../Core/Src/app_entry.c:153:6:MX_APPE_Process	1
 ../Core/Src/app_entry.c:163:6:UTIL_SEQ_PreIdle	1
-../Core/Src/app_entry.c:173:6:UTIL_SEQ_Idle	12
+../Core/Src/app_entry.c:173:6:UTIL_SEQ_Idle	1

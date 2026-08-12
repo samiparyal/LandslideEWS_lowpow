@@ -359,9 +359,9 @@
  *
  ******************************************************************************/
 
-#define CFG_FULL_LOW_POWER       (1)
+#define CFG_FULL_LOW_POWER       (0)
 
-#define CFG_LPM_SUPPORTED        (1)
+#define CFG_LPM_SUPPORTED        (0)
 
 #define CFG_LPM_EMULATED         (0)
 

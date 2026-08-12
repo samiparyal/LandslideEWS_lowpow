@@ -58,8 +58,7 @@ Core/Src/app_entry.o: ../Core/Src/app_entry.c ../Core/Inc/app_common.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_gatt.h \
  ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h \
- ../Middlewares/ST/STM32_BLE/stack/include/ble_events.h \
- ../Utilities/lpm/tiny_lpm/stm32_lpm.h
+ ../Middlewares/ST/STM32_BLE/stack/include/ble_events.h
 ../Core/Inc/app_common.h:
 ../Core/Inc/app_conf.h:
 ../Drivers/CMSIS/Device/ST/STM32WB0X/Include/stm32wb0x.h:
@@ -125,4 +124,3 @@ Core/Src/app_entry.o: ../Core/Src/app_entry.c ../Core/Inc/app_common.h \
 ../Middlewares/ST/STM32_BLE/stack/include/ble_gatt.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_api.h:
 ../Middlewares/ST/STM32_BLE/stack/include/ble_events.h:
-../Utilities/lpm/tiny_lpm/stm32_lpm.h:

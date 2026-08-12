@@ -185,7 +185,23 @@ static uint32_t APP_BLE_BroadcastIntervalMs(void)
 
 static void APP_BLE_RawImuSend_Task(void)
 {
-    (void)Landslide_Send_Next_Pending();
+    /* Drain the whole backlog here */
+    while (s_imu_pending > 0U)
+    {
+        uint8_t pending_before = s_imu_pending;
+        if (Landslide_Send_Next_Pending() != BLE_STATUS_SUCCESS)
+        {
+            /* Radio/notify busy */
+            break;
+        }
+        if (s_imu_pending == pending_before)
+        {
+            /* No active connection / notify not enabled yet - this returns
+               BLE_STATUS_SUCCESS as a no-op without draining anything, so
+               without this check the loop above spins forever. */
+            break;
+        }
+    }
 }
 
 /* DRDY arrives on two paths depending on power state: through GPIOB_IRQHandler
@@ -267,7 +283,7 @@ void BLE_Init(void)
     Error_Handler();
   }
 
-  ret = hci_le_set_default_phy(0, HCI_TX_PHYS_LE_CODED_PREF, HCI_RX_PHYS_LE_CODED_PREF);
+  ret = hci_le_set_default_phy(0, HCI_TX_PHYS_LE_1M_PREF, HCI_RX_PHYS_LE_1M_PREF);
     if (ret != BLE_STATUS_SUCCESS) {
         SEGGER_RTT_printf(0, "hci_le_set_default_phy failed: 0x%02X\n", ret);
     }
@@ -803,8 +819,8 @@ static void connection_complete_event(uint8_t Status,
 
   tBleStatus ret = hci_le_set_phy(Connection_Handle,
                         0,                              // host has preference
-                        HCI_TX_PHYS_LE_CODED_PREF,      // TX: coded
-                        HCI_RX_PHYS_LE_CODED_PREF,      // RX: coded
+						HCI_TX_PHYS_LE_1M_PREF,      // TX: coded
+						HCI_RX_PHYS_LE_1M_PREF,      // RX: coded
                         2);                             // PHY_options=2 -> prefer S=8
    if (ret != BLE_STATUS_SUCCESS) {
  	  SEGGER_RTT_printf(0, "hci_le_set_phy failed: 0x%02X\n", ret);
@@ -949,7 +965,7 @@ void APP_BLE_Procedure_Gap_Peripheral(ProcGapPeripheralId_t ProcGapPeripheralId)
                                                      0,
                                                      HCI_PHY_LE_1M,
                                                      0,
-													 HCI_PHY_LE_CODED, /* Secondary advertising PHY (unused with legacy adv) */
+													 HCI_PHY_LE_1M, /* Secondary advertising PHY (unused with legacy adv) */
                                                      0,
                                                      0);
       SEGGER_RTT_printf(0, "[AdvCfg] status=0x%02X\n", status);

@@ -44,6 +44,8 @@ void imu_get_last_sample(int16_t accel[3], int16_t gyro[3]);
 //
 int32_t imu_poll(void);
 
+float imu_rate_period_ms(imu_rate_t rate);
+
 #endif
 
 

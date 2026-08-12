@@ -9,3 +9,4 @@
 ../Core/Src/imu.c:197:9:imu_set_rate	40	static
 ../Core/Src/imu.c:232:6:imu_get_last_sample	16	static
 ../Core/Src/imu.c:239:13:imu_apply_training_mode	8	static
+../Core/Src/imu.c:253:7:imu_rate_period_ms	16	static

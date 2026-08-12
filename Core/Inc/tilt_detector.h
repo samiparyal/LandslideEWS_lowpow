@@ -15,8 +15,7 @@
 uint8_t tilt_detector_get_trigger_reason(void);
 
 /*------Calibration------*/
-/* 450 x 133.33 ms (IMU_RATE_7HZ5) = 1 s. */
-#define CALIB_SAMPLES 450U
+#define CALIB_DURATION_MS 60000U
 
 /* ----- Tilt angle thresholds (deviation from baseline) ----- */
 #define WARNING_DEG             5.0f
@@ -49,9 +48,9 @@ uint8_t tilt_detector_get_trigger_reason(void);
 #define TILT_RATE_CRIT_DPH      0.9f
 
 /* Acceleration-magnitude z-score threshold, angle-independent */
-#define ACCELERATION_GRAVITY_DEVIATION_K_SIGMA        4.0f   // z-score multiplier, matches literature margin for step/impact events
+#define ACCELERATION_GRAVITY_DEVIATION_K_SIGMA        2.0f   // z-score multiplier, matches literature margin for step/impact events
 #define ACCELERATION_GRAVITY_DEVIATION_MIN_SIGMA    0.01f  // floor on std (1g units) so threshold can't collapse to ~0 if bench is unusually quiet
-#define ACCELERATION_GRAVITY_DEVIATION_LATCH_MS     2000U  // hold the reason bit this long after the last true reading, for a slower BLE check/read to still catches a transient event
+#define ACCELERATION_GRAVITY_DEVIATION_LATCH_MS     1000U  // hold the reason bit this long after the last true reading, for a slower BLE check/read to still catches a transient event
 
 /*-------rate channel windowing------
  * 12 snapshots x 5 min = 1h rate window.
